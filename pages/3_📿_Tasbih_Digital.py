@@ -173,6 +173,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # SECTION 0: Header Utama
+# Mengganti st.title dan st.markdown("---") dengan div header baru
 st.markdown('<div class="main-header"><h1>📿 Tasbih Digital</h1></div>', unsafe_allow_html=True)
 
 
@@ -186,14 +187,14 @@ with target_col1:
         "Set target dzikir Anda:",
         min_value=0, value=33, step=33,
         help="Biasanya dzikir dilakukan 33x, 99x, atau sesuai kebutuhan",
-        label_visibility="collapsed"
+        label_visibility="collapsed" # Menyembunyikan label bawaan Streamlit
     )
 with target_col2:
     progress = min(st.session_state.count / target * 100, 100) if target > 0 else 0
     st.metric("Progress", f"{progress:.1f}%")
 
 st.progress(progress / 100)
-st.markdown('</div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True) # Tutup styled-container
 
 if st.session_state.count >= target > 0:
     st.success(f"🎉 Selamat! Anda telah mencapai target {target} dzikir!")
@@ -230,7 +231,10 @@ st.markdown("""
 
 # === BAGIAN FOOTER ===
 def display_footer():
+    """Menampilkan footer aplikasi dengan ayat Quran dan copyright."""
     st.markdown("---")
+    
+    # Ayat Al-Quran
     st.markdown("""
     <div style='margin-top: 1.5rem; 
                 padding: 1rem; 
@@ -242,6 +246,8 @@ def display_footer():
         </p>
     </div>
     """, unsafe_allow_html=True)
+
+    # Copyright
     st.markdown("""
     <div style='margin-top: 1.5rem; text-align: center;'>
         <p style='color: #666; font-size: 0.8rem; margin: 0.3rem 0;'>© 2025 Tasbih Digital</p>
@@ -249,4 +255,5 @@ def display_footer():
     </div>
     """, unsafe_allow_html=True)
 
+# Panggil fungsi footer di akhir aplikasi
 display_footer()
