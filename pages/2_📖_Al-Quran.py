@@ -225,14 +225,6 @@ st.markdown("""
         font-family: 'Poppins', sans-serif;
         text-align: center;
         margin-bottom: 2rem;
-        animation: fadeOut 3s ease-in-out forwards;
-        animation-delay: 1s;
-    }
-    
-    @keyframes fadeOut {
-        0% { opacity: 1; }
-        70% { opacity: 1; }
-        100% { opacity: 0; display: none; }
     }
     
     /* Scrollbar Custom */
@@ -345,6 +337,32 @@ def extract_surah_info(surah_data, surah_number):
         elif 'text' in surah_data or 'name' in surah_data:
             return surah_data
     return None
+
+# --- FUNGSI BARU UNTUK FOOTER ---
+def display_footer():
+    """Menampilkan footer aplikasi dengan ayat Quran dan copyright."""
+    st.markdown("---")
+    
+    # Ayat Al-Quran
+    st.markdown("""
+    <div style='margin-top: 1.5rem; 
+                 padding: 1rem; 
+                 background: rgba(0, 0, 0, 0.3); 
+                 border-radius: 8px;'>
+        <p style='color: #888; font-size: 0.85rem; margin: 0; font-style: italic;'>
+            "Kitab (Al-Qur'an) ini tidak ada keraguan padanya; petunjuk bagi mereka yang bertakwa."<br>
+            <span style='color: #00aaff;'>(QS. Al-Baqarah: 2)</span>
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Copyright
+    st.markdown("""
+    <div style='margin-top: 1.5rem; text-align: center;'>
+        <p style='color: #666; font-size: 0.8rem; margin: 0.3rem 0;'>© 2025 Al-Quran Digital</p>
+        <p style='color: #666; font-size: 0.8rem; margin: 0.3rem 0;'>Developed with ❤️ for Hamba Allah</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 # --- INISIALISASI SESSION STATE ---
 
@@ -462,13 +480,13 @@ if text_data and translation_data:
     st.session_state.success_message = f"✅ Berhasil memuat {len(text_data)} ayat dari Surah {surah_summary.get('name_latin', '')}"
     
     # Tampilkan pesan sukses dengan animasi fade out
-    if st.session_state.show_success_message:
-        st.markdown(f"""
-        <div class="success-message">
-            {st.session_state.success_message}
-        </div>
-        """, unsafe_allow_html=True)
-    
+    # Pesan ini akan muncul sebentar lalu hilang
+    success_placeholder = st.empty()
+    with success_placeholder.container():
+         st.markdown(f'<div class="success-message">{st.session_state.success_message}</div>', unsafe_allow_html=True)
+         time.sleep(3) # Tampilkan selama 3 detik
+    success_placeholder.empty()
+
     for ayat_number in sorted(text_data.keys(), key=int):
         arabic_text = text_data.get(str(ayat_number), "")
         translation_text = translation_data.get(str(ayat_number), "Terjemahan tidak tersedia.")
@@ -485,3 +503,6 @@ if text_data and translation_data:
 else:
     st.warning(f"⚠️ Data ayat untuk Surah {surah_summary.get('name_latin', '')} tidak dapat dimuat.")
     st.info("💡 Pastikan file JSON ada dan strukturnya sesuai format.")
+
+# --- PANGGIL FUNGSI FOOTER DI AKHIR APLIKASI ---
+display_footer()
