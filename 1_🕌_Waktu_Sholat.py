@@ -6,12 +6,15 @@ import locale
 import base64
 import os
 from pathlib import Path
+import pytz  # <-- Tambahkan import ini
 
-# --- LOKALISASI BAHASA INDONESIA ---
+# --- LOKALISASI & KONFIGURASI ZONA WAKTU ---
 try:
     locale.setlocale(locale.LC_TIME, 'id_ID.UTF-8')
 except locale.Error:
     pass
+
+WIB = pytz.timezone('Asia/Jakarta') # <-- Definisikan zona waktu WIB
 
 hijri_months_id = {
     "Muharram": "Muharram", "Safar": "Safar", "Rabi' al-awwal": "Rabiul Awal",
@@ -37,9 +40,10 @@ if 'azan_played_today' not in st.session_state:
 if 'current_azan' not in st.session_state:
     st.session_state.current_azan = None
 if 'last_date' not in st.session_state:
-    st.session_state.last_date = datetime.now().strftime("%Y-%m-%d")
+    # Menggunakan waktu WIB saat inisialisasi
+    st.session_state.last_date = datetime.now(WIB).strftime("%Y-%m-%d")
 if 'last_refresh' not in st.session_state:
-    st.session_state.last_refresh = datetime.now()
+    st.session_state.last_refresh = datetime.now(WIB)
 
 # --- PATH FIX untuk Streamlit Cloud ---
 BASE_DIR = Path(__file__).parent
@@ -56,6 +60,7 @@ AZAN_FILES = {
 # --- CSS Kustom Modern & Responsif ---
 st.markdown("""
 <style>
+/* ... (Seluruh CSS Anda tetap di sini, tidak ada perubahan) ... */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&display=swap');
 .stApp { background-color: #0d1117; color: #c9d1d9; }
@@ -95,13 +100,13 @@ body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; heigh
 </style>
 """, unsafe_allow_html=True)
 
+# --- (Sisa fungsi-fungsi Anda tetap sama, tidak perlu diubah) ---
 def get_azan_file(prayer_name):
     if prayer_name in AZAN_FILES:
         audio_path = AUDIO_DIR / AZAN_FILES[prayer_name]
         if audio_path.exists():
             return audio_path
     return None
-
 def play_azan_audio(prayer_name):
     azan_file = get_azan_file(prayer_name)
     if azan_file:
@@ -115,11 +120,9 @@ def play_azan_audio(prayer_name):
             play_azan_online()
     else:
         play_azan_online()
-
 def play_azan_online():
     azan_url = "https://www.islamcan.com/audio/adhan/azan1.mp3"
     st.markdown(f'<audio autoplay><source src="{azan_url}" type="audio/mpeg"></audio>', unsafe_allow_html=True)
-
 def check_audio_files():
     status = {}
     for prayer_name, audio_file in AZAN_FILES.items():
@@ -128,7 +131,7 @@ def check_audio_files():
     return status
 
 def check_azan_time(prayer_times_dict):
-    sekarang = datetime.now()
+    sekarang = datetime.now(WIB) # <-- Gunakan WIB
     waktu_sekarang_str = sekarang.strftime("%H:%M")
     tanggal_sekarang = sekarang.strftime("%Y-%m-%d")
 
@@ -150,7 +153,7 @@ def check_azan_time(prayer_times_dict):
         nama_sholat_aktif = st.session_state.current_azan
         key_sholat_aktif = sholat_mapping[nama_sholat_aktif]
         waktu_sholat_aktif_str = prayer_times_dict.get(key_sholat_aktif, "00:00")
-        waktu_sholat_dt = datetime.strptime(waktu_sholat_aktif_str, "%H:%M").replace(year=sekarang.year, month=sekarang.month, day=sekarang.day)
+        waktu_sholat_dt = WIB.localize(datetime.strptime(waktu_sholat_aktif_str, "%H:%M").replace(year=sekarang.year, month=sekarang.month, day=sekarang.day))
         if (sekarang - waktu_sholat_dt).total_seconds() > 60:
             st.session_state.current_azan = None
     
@@ -187,7 +190,7 @@ def get_prayer_times(lat, lon, date_str):
         return None
 
 def find_next_prayer(prayer_times_dict):
-    sekarang = datetime.now()
+    sekarang = datetime.now(WIB) # <-- Gunakan WIB
     urutan_sholat = [("fajr", "Subuh"), ("dhuhr", "Dzuhur"), ("asr", "Ashar"), ("maghrib", "Maghrib"), ("isha", "Isya")]
     
     if not prayer_times_dict: 
@@ -203,16 +206,16 @@ def find_next_prayer(prayer_times_dict):
         sholat_berikutnya = "Subuh (Besok)"
         waktu_sholat_berikutnya_str = prayer_times_dict.get("fajr", "00:00")
 
-    waktu_berikutnya_dt = datetime.strptime(waktu_sholat_berikutnya_str, "%H:%M").replace(year=sekarang.year, month=sekarang.month, day=sekarang.day)
+    waktu_berikutnya_dt = WIB.localize(datetime.strptime(waktu_sholat_berikutnya_str, "%H:%M").replace(year=sekarang.year, month=sekarang.month, day=sekarang.day))
     
-    if "Besok" in sholat_berikutnya:
+    if "Besok" in sholat_berikutnya or waktu_berikutnya_dt < sekarang :
         waktu_berikutnya_dt += timedelta(days=1)
         
     selisih = waktu_berikutnya_dt - sekarang
-    jam, sisa = divmod(selisih.seconds, 3600)
+    jam, sisa = divmod(selisih.total_seconds(), 3600)
     menit, detik = divmod(sisa, 60)
     
-    return sholat_berikutnya, waktu_sholat_berikutnya_str, f"{jam:02d}:{menit:02d}:{detik:02d}"
+    return sholat_berikutnya, waktu_sholat_berikutnya_str, f"{int(jam):02d}:{int(menit):02d}:{int(detik):02d}"
 
 def display_footer():
     st.markdown("---")
@@ -261,7 +264,7 @@ with st.sidebar:
             st.write(f"{icon} **{sholat}**: {'Sudah' if status else 'Belum'} diputar")
 
 lat, lon = 3.5952, 98.6722
-hari_ini_str = datetime.now().strftime("%d-%m-%Y")
+hari_ini_str = datetime.now(WIB).strftime("%d-%m-%Y") # <-- Gunakan WIB
 data_sholat = get_prayer_times(lat, lon, hari_ini_str)
 
 if data_sholat:
@@ -270,7 +273,7 @@ if data_sholat:
         st.markdown(f'<div class="azan-notification">🕌 WAKTU SHOLAT {st.session_state.current_azan.upper()} 🕌</div>', unsafe_allow_html=True)
         play_azan_audio(st.session_state.current_azan)
     
-    waktu_sekarang = datetime.now()
+    waktu_sekarang = datetime.now(WIB) # <-- Gunakan WIB
     format_waktu = waktu_sekarang.strftime("%H<span class='clock-separator'>:</span>%M<span class='clock-separator'>:</span>%S")
     nama_sholat_berikutnya, waktu_sholat_berikutnya, hitung_mundur = find_next_prayer(data_sholat)
     
@@ -284,7 +287,7 @@ if data_sholat:
         <div class="card">
             <div class="next-label">Sholat Berikutnya</div>
             <div class="next-name">{nama_sholat_berikutnya}</div>
-            <div class.next-time">{waktu_sholat_berikutnya}</div>
+            <div class="next-time">{waktu_sholat_berikutnya}</div>
             <div class="countdown">⏳ {hitung_mundur}</div>
         </div>
     </div>
@@ -313,5 +316,6 @@ else:
 display_footer()
 st.markdown('</div>', unsafe_allow_html=True)
 
+# Auto-refresh logic
 time_module.sleep(1)
 st.rerun()
