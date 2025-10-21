@@ -96,93 +96,173 @@ st.markdown("""
 KAABA_LAT = 21.4225
 KAABA_LON = 39.8262
 
+# Daftar negara dan variasi ejaan dalam bahasa Indonesia
+COUNTRY_VARIATIONS = {
+    'indonesia': ['indonesia', 'indonesian', 'republik indonesia', 'ri'],
+    'malaysia': ['malaysia', 'malaysian', 'malaysia'],
+    'singapore': ['singapore', 'singapura', 'singapura', 'republik singapura'],
+    'thailand': ['thailand', 'thai', 'muang thai', 'kerajaan thailand'],
+    'brunei': ['brunei', 'brunei darussalam', 'negara brunei darussalam'],
+    'filipina': ['filipina', 'philippines', 'pilipinas', 'republik filipina'],
+    'vietnam': ['vietnam', 'viet nam', 'republik sosialis vietnam'],
+    'kamboja': ['kamboja', 'cambodia', 'kampuchea', 'kerajaan kamboja'],
+    'laos': ['laos', 'lao', 'republik demokratik rakyat laos'],
+    'myanmar': ['myanmar', 'burma', 'republik myanmar'],
+    
+    # Timur Tengah
+    'saudi arabia': ['saudi arabia', 'arab saudi', 'kerajaan arab saudi', 'saudi'],
+    'united arab emirates': ['united arab emirates', 'uae', 'uni emirat arab', 'emirat arab'],
+    'qatar': ['qatar', 'qatar', 'negara qatar'],
+    'kuwait': ['kuwait', 'kuwait', 'negara kuwait'],
+    'oman': ['oman', 'oman', 'kesultanan oman'],
+    'yaman': ['yaman', 'yemen', 'republik yaman'],
+    'mesir': ['mesir', 'egypt', 'misr', 'republik arab mesir'],
+    'turki': ['turki', 'turkey', 'türkiye', 'republik turki'],
+    'iran': ['iran', 'iran', 'republik islam iran'],
+    'irak': ['irak', 'iraq', 'republik irak'],
+    
+    # Asia Timur
+    'jepang': ['jepang', 'japan', 'nippon', 'nihon'],
+    'korea selatan': ['korea selatan', 'south korea', 'republik korea'],
+    'korea utara': ['korea utara', 'north korea', 'republik rakyat demokratik korea'],
+    'china': ['china', 'cina', 'tiongkok', 'republik rakyat china'],
+    'taiwan': ['taiwan', 'taiwan', 'republik china'],
+    'hong kong': ['hong kong', 'hongkong', 'xianggang'],
+    'macau': ['macau', 'macao', 'aomen'],
+    
+    # Asia Selatan
+    'india': ['india', 'india', 'bharat', 'republik india'],
+    'pakistan': ['pakistan', 'pakistan', 'republik islam pakistan'],
+    'bangladesh': ['bangladesh', 'bangladesh', 'republik rakyat bangladesh'],
+    'sri lanka': ['sri lanka', 'sri lanka', 'republik sosialis demokratik sri lanka'],
+    'nepal': ['nepal', 'nepal', 'republik federal demokratik nepal'],
+    'bhutan': ['bhutan', 'bhutan', 'kerajaan bhutan'],
+    'maladewa': ['maladewa', 'maldives', 'republik maladewa'],
+    
+    # Eropa
+    'inggris': ['inggris', 'united kingdom', 'uk', 'britania raya', 'british'],
+    'jerman': ['jerman', 'germany', 'deutschland', 'republik federal jerman'],
+    'perancis': ['perancis', 'france', 'republik perancis'],
+    'italia': ['italia', 'italy', 'italia', 'republik italia'],
+    'spanyol': ['spanyol', 'spain', 'españa', 'kerajaan spanyol'],
+    'belanda': ['belanda', 'netherlands', 'nederland', 'kerajaan belanda'],
+    'belgia': ['belgia', 'belgium', 'belgique', 'kerajaan belgia'],
+    'swiss': ['swiss', 'switzerland', 'schweiz', 'konfederasi swiss'],
+    'swedia': ['swedia', 'sweden', 'sverige', 'kerajaan swedia'],
+    'norwegia': ['norwegia', 'norway', 'norge', 'kerajaan norwegia'],
+    'denmark': ['denmark', 'denmark', 'danmark', 'kerajaan denmark'],
+    'finlandia': ['finlandia', 'finland', 'suomi', 'republik finlandia'],
+    'rusia': ['rusia', 'russia', 'russian federation', 'federasi rusia'],
+    
+    # Amerika
+    'amerika serikat': ['amerika serikat', 'united states', 'usa', 'us', 'amerika'],
+    'kanada': ['kanada', 'canada', 'kanada'],
+    'mexico': ['mexico', 'mexico', 'meksiko', 'estados unidos mexicanos'],
+    'brazil': ['brazil', 'brasil', 'republik federal brasil'],
+    'argentina': ['argentina', 'argentina', 'republik argentina'],
+    'chile': ['chile', 'chile', 'republik chile'],
+    
+    # Afrika
+    'afrika selatan': ['afrika selatan', 'south africa', 'republik afrika selatan'],
+    'nigeria': ['nigeria', 'nigeria', 'republik federal nigeria'],
+    'kenya': ['kenya', 'kenya', 'republik kenya'],
+    'ethiopia': ['ethiopia', 'ethiopia', 'republik federal demokratik ethiopia'],
+    'maroko': ['maroko', 'morocco', 'kerajaan maroko'],
+    'aljazair': ['aljazair', 'algeria', 'republik demokratik rakyat aljazair'],
+    
+    # Oseania
+    'australia': ['australia', 'australia', 'commonwealth of australia'],
+    'selandia baru': ['selandia baru', 'new zealand', 'aotearoa'],
+}
+
+# Daftar kota utama di Indonesia
+MAJOR_CITIES = {
+    'indonesia': [
+        'jakarta', 'surabaya', 'bandung', 'medan', 'semarang', 'makassar', 'palembang',
+        'depok', 'tangerang', 'bekasi', 'bogor', 'malang', 'yogyakarta', 'surakarta',
+        'denpasar', 'batam', 'pekanbaru', 'bandar lampung', 'padang', 'banjarmasin',
+        'samarinda', 'manado', 'balikpapan', 'jambi', 'pontianak', 'mataram', 'kupang',
+        'bengkulu', 'palu', 'ambon', 'ternate', 'gorontalo', 'mamuju', 'kendari',
+        'jayapura', 'manokwari', 'sorong', 'merauke', 'biak', 'nabire'
+    ]
+}
+
+def normalize_country_name(country_input):
+    """Normalisasi nama negara ke bentuk standar"""
+    country_lower = country_input.lower().strip()
+    
+    for standard_name, variations in COUNTRY_VARIATIONS.items():
+        if country_lower in variations:
+            return standard_name
+    
+    # Jika tidak ditemukan, kembalikan input asli
+    return country_input.lower()
+
 def get_coordinates(city, country):
-    """Mendapatkan koordinat dari nama kota dan negara dengan validasi ketat"""
+    """Mendapatkan koordinat dari nama kota dan negara dengan validasi yang lebih baik"""
     try:
+        # Normalisasi nama negara
+        normalized_country = normalize_country_name(country)
+        
         # Cari dengan query yang lebih spesifik
-        query = f'{city},{country}'
+        query = f'{city}, {normalized_country}'
         url = f"https://nominatim.openstreetmap.org/search?q={query}&format=json&addressdetails=1&limit=5"
-        headers = {'User-Agent': 'AplikasiArahKiblat/1.0'}
+        headers = {'User-Agent': 'AplikasiArahKiblat/1.0 (contact: admin@example.com)'}
         
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
         
         data = response.json()
         if not data or len(data) == 0:
+            # Coba lagi dengan query yang lebih umum
+            query_fallback = f'{city}'
+            url_fallback = f"https://nominatim.openstreetmap.org/search?q={query_fallback}&format=json&addressdetails=1&limit=10"
+            response_fallback = requests.get(url_fallback, headers=headers, timeout=10)
+            data_fallback = response_fallback.json()
+            
+            if not data_fallback:
+                return None, None, f"Lokasi '{city}' tidak ditemukan"
+            
+            # Cari di hasil fallback yang sesuai dengan negara
+            for result in data_fallback:
+                address = result.get('address', {})
+                result_country = address.get('country', '').lower()
+                
+                # Cek apakah negara cocok
+                country_found = False
+                for standard_name, variations in COUNTRY_VARIATIONS.items():
+                    if normalized_country == standard_name:
+                        if any(var in result_country for var in variations):
+                            country_found = True
+                            break
+                
+                if country_found:
+                    lat = float(result['lat'])
+                    lon = float(result['lon'])
+                    return lat, lon, None
+            
             return None, None, f"Kota '{city}' tidak ditemukan di negara '{country}'"
         
-        # Cari hasil yang benar-benar sesuai dengan negara yang diminta
-        matched_result = None
-        for result in data:
-            address = result.get('address', {})
-            result_country = address.get('country', '').lower()
-            location_type = result.get('type', '')
-            
-            # Skip jika tipe lokasi adalah negara
-            if location_type == 'country':
-                continue
-            
-            # Cek apakah negara benar-benar cocok
-            if result_country == country.lower() or country.lower() in result_country:
-                matched_result = result
-                break
+        # Ambil hasil pertama yang paling relevan
+        first_result = data[0]
+        lat = float(first_result['lat'])
+        lon = float(first_result['lon'])
         
-        if not matched_result:
-            return None, None, f"Kota '{city}' tidak ditemukan di negara '{country}'. Pastikan kota dan negara sesuai!"
-        
-        # Validasi tambahan: pastikan bukan negara
-        if matched_result.get('type', '') == 'country':
-            return None, None, f"'{city}' adalah nama negara, bukan kota. Harap masukkan nama kota yang valid"
-        
-        # Ambil koordinat
-        lat = float(matched_result['lat'])
-        lon = float(matched_result['lon'])
-        
-        # Validasi final: cek apakah alamat lengkap mengandung negara yang benar
-        display_name = matched_result.get('display_name', '').lower()
-        address = matched_result.get('address', {})
+        # Validasi negara dari hasil
+        address = first_result.get('address', {})
         result_country = address.get('country', '').lower()
         
-        # Daftar negara yang umum dan variasinya
-        country_variations = {
-            'indonesia': ['indonesia'],
-            'malaysia': ['malaysia'],
-            'singapore': ['singapore', 'singapura'],
-            'thailand': ['thailand'],
-            'spain': ['spain', 'españa', 'spanyol'],
-            'france': ['france', 'perancis'],
-            'germany': ['germany', 'jerman', 'deutschland'],
-            'italy': ['italy', 'italia'],
-            'united kingdom': ['united kingdom', 'uk', 'inggris'],
-            'united states': ['united states', 'usa', 'amerika'],
-            'japan': ['japan', 'jepang', 'nihon'],
-            'china': ['china', 'cina', 'tiongkok'],
-            'india': ['india'],
-            'australia': ['australia'],
-            'saudi arabia': ['saudi arabia', 'arab saudi'],
-            'egypt': ['egypt', 'mesir'],
-            'turkey': ['turkey', 'turki', 'türkiye'],
-        }
-        
-        # Normalisasi input negara
-        country_lower = country.lower().strip()
-        country_found = False
-        
-        # Cek apakah negara input cocok dengan hasil
-        for key, variations in country_variations.items():
-            if country_lower in variations or key == country_lower:
-                if any(var in result_country or var in display_name for var in variations):
-                    country_found = True
+        # Cek apakah negara hasil cocok dengan input
+        country_match = False
+        for standard_name, variations in COUNTRY_VARIATIONS.items():
+            if normalized_country == standard_name:
+                if any(var in result_country for var in variations):
+                    country_match = True
                     break
         
-        # Fallback: cek langsung
-        if not country_found:
-            if country_lower in result_country or country_lower in display_name:
-                country_found = True
-        
-        if not country_found:
-            actual_country = address.get('country', 'Unknown')
-            return None, None, f"Kota '{city}' ditemukan di negara '{actual_country}', bukan '{country}'. Harap periksa kembali!"
+        if not country_match:
+            actual_country = address.get('country', 'Tidak Diketahui')
+            return None, None, f"Kota '{city}' ditemukan di '{actual_country}', bukan '{country}'"
         
         return lat, lon, None
         
@@ -356,11 +436,36 @@ st.markdown("""
 
 col1, col2 = st.columns(2)
 with col1:
-    city_input = st.text_input("**Kota**", "", placeholder="Contoh: Medan, Jakarta, Surabaya")
-    st.caption("⚠️ Masukkan nama KOTA, bukan negara")
+    city_input = st.text_input("**Kota**", "", placeholder="Contoh: Jakarta, Medan, Surabaya")
+    st.caption("⚠️ Masukkan nama KOTA (bisa huruf besar/kecil)")
+    
+    # Tampilkan contoh kota populer
+    with st.expander("📋 Contoh Kota Populer"):
+        st.write("**Indonesia:** Jakarta, Surabaya, Bandung, Medan, Makassar")
+        st.write("**Malaysia:** Kuala Lumpur, Penang, Johor Bahru")
+        st.write("**Singapore:** Singapore")
+        st.write("**Timur Tengah:** Dubai, Riyadh, Istanbul, Cairo")
+        
 with col2:
-    country_input = st.text_input("**Negara**", "", placeholder="Contoh: Indonesia, Malaysia")
-    st.caption("⚠️ Masukkan nama NEGARA")
+    country_input = st.text_input("**Negara**", "", placeholder="Contoh: Indonesia, Malaysia, Singapore")
+    st.caption("⚠️ Masukkan nama NEGARA (bisa huruf besar/kecil)")
+    
+    # Tampilkan contoh negara
+    with st.expander("🌍 Contoh Negara"):
+        col_a, col_b = st.columns(2)
+        with col_a:
+            st.write("**Asia:**")
+            st.write("- Indonesia")
+            st.write("- Malaysia") 
+            st.write("- Singapore")
+            st.write("- Thailand")
+            st.write("- Jepang")
+        with col_b:
+            st.write("**Lainnya:**")
+            st.write("- Arab Saudi")
+            st.write("- Amerika Serikat")
+            st.write("- Inggris")
+            st.write("- Australia")
 
 calculate_button = st.button("🧭 Hitung Arah Kiblat", use_container_width=True)
 
@@ -374,24 +479,15 @@ if calculate_button:
         if error_msg:
             st.error(f"❌ {error_msg}")
             st.info("""
-            **💡 Panduan Pengisian:**
-            
-            ✅ **Contoh yang BENAR:**
-            - Kota: `Jakarta` → Negara: `Indonesia`
-            - Kota: `Medan` → Negara: `Indonesia`
-            - Kota: `Kuala Lumpur` → Negara: `Malaysia`
-            - Kota: `Madrid` → Negara: `Spain`
-            - Kota: `Cairo` → Negara: `Egypt`
-            
-            ❌ **Contoh yang SALAH:**
-            - Kota: `Madrid` → Negara: `Indonesia` ❌ (Madrid ada di Spain)
-            - Kota: `Indonesia` → Negara: `Jakarta` ❌ (Terbalik)
-            - Kota: `Spanyol` → Negara: `Indonesia` ❌ (Spanyol adalah negara)
-            
-            **Tips:**
-            - Pastikan kota yang Anda masukkan **benar-benar ada** di negara tersebut
-            - Gunakan ejaan bahasa Inggris untuk hasil terbaik
-            - Jangan menukar posisi kota dan negara
+            **💡 Tips Pencarian:**
+            - **Kota**: Jakarta, Medan, Surabaya, Bandung, Makassar, dll.
+            - **Negara**: Indonesia, Malaysia, Singapore, Thailand, Jepang, Arab Saudi, dll.
+            - Bisa menggunakan huruf **BESAR** atau **kecil**
+            - Untuk negara bisa menggunakan ejaan Indonesia atau Inggris
+            - Contoh: 
+              - Kota: `jakarta`, Negara: `indonesia` 
+              - Kota: `dubai`, Negara: `united arab emirates`
+              - Kota: `tokyo`, Negara: `jepang`
             """)
         elif user_lat is not None and user_lon is not None:
             # --- Result Section ---
@@ -403,8 +499,8 @@ if calculate_button:
             
             col_info1, col_info2, col_info3 = st.columns(3)
             with col_info1:
-                st.metric("📍 Kota", f"{city_input}")
-                st.metric("🌍 Negara", f"{country_input}")
+                st.metric("📍 Kota", f"{city_input.title()}")
+                st.metric("🌍 Negara", f"{country_input.title()}")
             with col_info2:
                 st.metric("🌐 Lintang", f"{user_lat:.4f}°")
                 st.metric("🌐 Bujur", f"{user_lon:.4f}°")
@@ -459,12 +555,28 @@ if calculate_button:
         else:
             st.error(f"❌ Tidak dapat menemukan lokasi untuk '{city_input}, {country_input}'. Periksa kembali ejaan.")
 
+# Informasi default
+else:
+    st.markdown("""
+    <div style='background: rgba(0, 170, 255, 0.1); padding: 1.5rem; border-radius: 10px; margin: 2rem 0;'>
+        <h4 style='color: #00aaff; margin-bottom: 1rem;'>💡 Cara Menggunakan:</h4>
+        <ul style='color: #ccc; margin: 0;'>
+            <li>Masukkan <strong>nama kota</strong> dan <strong>nama negara</strong> tempat Anda berada</li>
+            <li>Bisa menggunakan <strong>huruf besar</strong> atau <strong>huruf kecil</strong></li>
+            <li>Untuk negara bisa menggunakan ejaan <strong>Indonesia</strong> atau <strong>Inggris</strong></li>
+            <li>Contoh: Kota: <code>jakarta</code>, Negara: <code>indonesia</code></li>
+            <li>Klik tombol <strong>"Hitung Arah Kiblat"</strong> untuk melihat hasil</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
 # Footer
 st.markdown("---")
 st.markdown(
     "<div style='text-align: center; color: #666; font-size: 14px;'>"
     "🕋 Arah Kiblat - Membantu Anda menemukan arah sholat yang tepat • "
-    "Koordinat Ka'bah: 21.4225°N, 39.8262°E"
+    "Koordinat Ka'bah: 21.4225°N, 39.8262°E • "
+    "Mendukung 60+ negara di seluruh dunia"
     "</div>",
     unsafe_allow_html=True
 )
