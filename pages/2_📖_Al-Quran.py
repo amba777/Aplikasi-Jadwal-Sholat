@@ -26,32 +26,6 @@ st.markdown("""
         font-family: 'Poppins', sans-serif;
     }
     
-    /* Toggle Sidebar Button */
-    .sidebar-toggle {
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        z-index: 9999;
-        background: linear-gradient(135deg, #00aaff, #00d4ff);
-        border: none;
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        color: white;
-        font-size: 1.5rem;
-        cursor: pointer;
-        box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .sidebar-toggle:hover {
-        transform: scale(1.1);
-        box-shadow: 0 6px 20px rgba(0, 170, 255, 0.6);
-    }
-    
     /* Header dengan Gradient */
     .main-header {
         text-align: center;
@@ -299,14 +273,6 @@ st.markdown("""
             padding: 1.5rem 1rem;
             margin-bottom: 1.5rem;
         }
-        
-        .sidebar-toggle {
-            top: 10px;
-            left: 10px;
-            width: 45px;
-            height: 45px;
-            font-size: 1.3rem;
-        }
     }
     
     @media (max-width: 480px) {
@@ -382,33 +348,11 @@ def extract_surah_info(surah_data, surah_number):
 
 # --- INISIALISASI SESSION STATE ---
 
-if 'sidebar_visible' not in st.session_state:
-    st.session_state.sidebar_visible = True
-
 if 'show_success_message' not in st.session_state:
     st.session_state.show_success_message = False
 
 if 'success_message' not in st.session_state:
     st.session_state.success_message = ""
-
-# --- TOGGLE SIDEBAR ---
-
-# Tombol toggle sidebar
-st.markdown("""
-<button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
-<script>
-function toggleSidebar() {
-    const sidebar = window.parent.document.querySelector('[data-testid="stSidebar"]');
-    if (sidebar.style.visibility === 'hidden' || sidebar.style.display === 'none') {
-        sidebar.style.visibility = 'visible';
-        sidebar.style.display = 'block';
-    } else {
-        sidebar.style.visibility = 'hidden';
-        sidebar.style.display = 'none';
-    }
-}
-</script>
-""", unsafe_allow_html=True)
 
 # --- LOGIKA UTAMA ---
 
