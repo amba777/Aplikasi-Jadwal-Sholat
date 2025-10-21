@@ -1,3 +1,19 @@
+[file name]: image.png
+[file content begin]
+# Tasbih Digital
+
+## Target Dzikir
+
+- **Progress**
+  - 0.0%
+
+---
+
+**https://arillipati.sichual-absoluteramanik.com/Annual-Hrants**
+
+
+[file content end]
+
 import streamlit as st
 import math
 import requests
@@ -12,85 +28,149 @@ except ImportError:
 
 st.set_page_config(page_title="Arah Kiblat", layout="wide")
 
-st.title("🕋 Arah Kiblat")
-
+# CSS untuk styling modern dengan background seperti Tasbih Digital
+st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
-
-.stApp {
-    background: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 100%);
-    color: #c9d1d9;
-    font-family: 'Poppins', sans-serif;
-}
-
-[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%);
-    border-right: 1px solid #2d3748;
-}
-
-/* KONSISTENSI FONT SIDEBAR */
-[data-testid="stSidebarNav"] li > a {
-    font-size: 1rem; font-weight: 500; color: #c9d1d9;
-    transition: color 0.2s ease, background-color 0.2s ease;
-}
-[data-testid="stSidebarNav"] li > a:hover {
-    color: #00d4ff; background-color: rgba(0, 212, 255, 0.1);
-}
-[data-testid="stSidebarNav"] li > a.current-selection {
-    background-color: #00aaff; color: white; border-radius: 8px; font-weight: 600;
-}
-[data-testid="stSidebarNav"] li > a.current-selection:hover {
-    background-color: #00d4ff; color: white;
-}
-
-.main-header {
-    text-align: center; padding: 2rem 1rem; margin-bottom: 2rem;
-    background: linear-gradient(135deg, rgba(0, 170, 255, 0.1) 0%, rgba(0, 212, 255, 0.05) 100%);
-    border-radius: 20px; border: 1px solid rgba(0, 170, 255, 0.2);
-}
-.main-header h1 {
-    font-family: 'Poppins', sans-serif; font-size: 2.8rem; font-weight: 700;
-    color: #ffffff; text-shadow: 0 0 15px rgba(0, 212, 255, 0.5); margin: 0;
-}
-
-.styled-container {
-    background: rgba(22, 27, 34, 0.8); backdrop-filter: blur(10px);
-    border: 1px solid #30363d; border-radius: 20px;
-    padding: 2rem; margin-bottom: 2rem;
-    transition: all 0.3s ease;
-}
-.styled-container:hover { border-color: #00aaff; }
-
-.styled-container h3 {
-    color: #00aaff; font-family: 'Poppins', sans-serif;
-    margin-top: 0; margin-bottom: 1.5rem;
-    display: flex; align-items: center; gap: 0.7rem;
-}
-
-/* Styling untuk Input, Button, Expander */
-div[data-testid="stTextInput"] input {
-    background-color: #21262d; border: 1px solid #30363d;
-    border-radius: 8px; color: #c9d1d9;
-}
-div[data-testid="stExpander"] {
-    background-color: transparent; border: 1px solid #30363d;
-    border-radius: 12px;
-}
-div[data-testid="stExpander"] summary { font-weight: 600; color: #00aaff; }
-
-.primary-button-wrapper .stButton button {
-    background: linear-gradient(135deg, #00aaff, #00d4ff); color: white;
-    height: 60px; font-size: 1.1rem; font-weight: 600;
-    border-radius: 12px; border: none; transition: all 0.3s ease;
-}
-.primary-button-wrapper .stButton button:hover {
-    transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0, 170, 255, 0.3);
-}
-
-.degree-display { font-size: 3rem; font-weight: bold; color: #00d4ff; text-align: center; margin: 1rem 0; }
-.qibla-direction { font-size: 2.5rem; font-weight: 600; color: #fafafa; text-align: center; margin: 1rem 0; }
-.instruction-box { background-color: #1a1f35; padding: 1.5rem; border-radius: 15px; margin-top: 2rem; border: 1px solid #00aaff;}
+    /* Background utama seperti Tasbih Digital */
+    .stApp {
+        background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #1e3a8a 100%);
+    }
+    
+    /* Container utama */
+    .main {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .main-header {
+        text-align: center;
+        color: #ffffff;
+        margin-bottom: 2rem;
+        font-size: 2.5rem;
+        font-weight: bold;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    
+    .input-section {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(5px);
+    }
+    
+    .result-section {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(5px);
+    }
+    
+    .compass-section {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(5px);
+    }
+    
+    .qibla-direction {
+        font-size: 4rem;
+        font-weight: bold;
+        color: #ffffff;
+        text-align: center;
+        margin: 1rem 0;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .degree-display {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #ffffff;
+        text-align: center;
+        margin: 1rem 0;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .instruction-box {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-top: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .stButton button {
+        width: 100%;
+        height: 60px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 10px;
+        border: none;
+        background: linear-gradient(135deg, #00aaff, #0088cc);
+        color: white;
+        transition: all 0.3s ease;
+    }
+    
+    .stButton button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    /* Text color adjustments for better contrast */
+    .stTextInput input, .stTextInput label {
+        color: white !important;
+    }
+    
+    .stExpander {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        border-radius: 10px !important;
+    }
+    
+    .stExpander .streamlit-expanderHeader {
+        color: white !important;
+        font-weight: bold;
+    }
+    
+    /* Metric styling */
+    [data-testid="metric-container"] {
+        background: rgba(255, 255, 255, 0.1) !important;
+        padding: 1rem !important;
+        border-radius: 10px !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    [data-testid="metric-label"], [data-testid="metric-value"], [data-testid="metric-delta"] {
+        color: white !important;
+    }
+    
+    /* Success, warning, error messages */
+    .stAlert {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    @media (max-width: 768px) {
+        .qibla-direction {
+            font-size: 2.5rem;
+        }
+        .degree-display {
+            font-size: 2rem;
+        }
+        .input-section, .result-section, .compass-section {
+            padding: 1rem;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -545,10 +625,15 @@ def get_direction_name(degrees):
             return name
     return "Utara"
 
+# --- Main Content Container ---
+st.markdown('<div class="main">', unsafe_allow_html=True)
+
+st.markdown('<div class="main-header">🕋 Arah Kiblat</div>', unsafe_allow_html=True)
+
 # --- Input Section ---
 st.markdown("""
 <div class="input-section">
-    <h3 style='color: #00aaff; margin-bottom: 1rem;'>📍 Masukkan Lokasi Anda</h3>
+    <h3 style='color: #ffffff; margin-bottom: 1rem;'>📍 Masukkan Lokasi Anda</h3>
 </div>
 """, unsafe_allow_html=True)
 
@@ -770,7 +855,7 @@ if calculate_button:
             # --- Result Section ---
             st.markdown("""
             <div class="result-section">
-                <h3 style='color: #ffa500; margin-bottom: 1rem;'>📊 Informasi Lokasi</h3>
+                <h3 style='color: #ffffff; margin-bottom: 1rem;'>📊 Informasi Lokasi</h3>
             </div>
             """, unsafe_allow_html=True)
             
@@ -792,7 +877,7 @@ if calculate_button:
             # --- Compass Section ---
             st.markdown("""
             <div class="compass-section">
-                <h3 style='color: #00aaff; margin-bottom: 1rem;'>🧭 Arah Kiblat</h3>
+                <h3 style='color: #ffffff; margin-bottom: 1rem;'>🧭 Arah Kiblat</h3>
             </div>
             """, unsafe_allow_html=True)
             
@@ -840,8 +925,8 @@ if calculate_button:
 
 # Informasi default
 st.markdown("""
-<div style='background: rgba(0, 170, 255, 0.1); padding: 1.5rem; border-radius: 10px; margin-bottom: 1rem;'>
-    <h4 style='color: #00aaff; margin-bottom: 1rem;'>💡 Cara Menggunakan:</h4>
+<div style='background: rgba(255, 255, 255, 0.1); padding: 1.5rem; border-radius: 10px; margin-bottom: 1rem;'>
+    <h4 style='color: #ffffff; margin-bottom: 1rem;'>💡 Cara Menggunakan:</h4>
     <ul style='color: #ccc; margin: 0; padding-left: 20px;'>
         <li>Masukkan <strong>nama kota</strong> dari 100+ kota yang tersedia</li>
         <li>Masukkan <strong>nama negara</strong> yang <strong>SESUAI</strong> dengan kota tersebut</li>
@@ -855,8 +940,8 @@ st.markdown("""
 
 # Blok 2: Contoh Input yang Benar
 st.markdown("""
-<div style='background: rgba(0, 170, 255, 0.1); padding: 1.5rem; border-radius: 10px; margin-bottom: 1rem;'>
-    <h4 style='color: #ffa500; margin-bottom: 1rem;'>✅ Contoh Input yang Benar:</h4>
+<div style='background: rgba(255, 255, 255, 0.1); padding: 1.5rem; border-radius: 10px; margin-bottom: 1rem;'>
+    <h4 style='color: #ffffff; margin-bottom: 1rem;'>✅ Contoh Input yang Benar:</h4>
     <ul style='color: #ccc; margin: 0; padding-left: 20px;'>
         <li><strong>Kota:</strong> Madrid | <strong>Negara:</strong> Spanyol ✅</li>
         <li><strong>Kota:</strong> Tokyo | <strong>Negara:</strong> Jepang ✅</li>
@@ -868,7 +953,7 @@ st.markdown("""
 
 # Blok 3: Contoh Input yang Salah
 st.markdown("""
-<div style='background: rgba(0, 170, 255, 0.1); padding: 1.5rem; border-radius: 10px; margin: 2rem 0;'>
+<div style='background: rgba(255, 255, 255, 0.1); padding: 1.5rem; border-radius: 10px; margin: 2rem 0;'>
     <h4 style='color: #ff6b6b; margin-bottom: 1rem;'>❌ Contoh Input yang Salah:</h4>
     <ul style='color: #ccc; margin: 0; padding-left: 20px;'>
         <li><strong>Kota:</strong> Madrid | <strong>Negara:</strong> Indonesia ❌ (Tidak cocok!)</li>
@@ -879,35 +964,35 @@ st.markdown("""
 
 # Statistik
 st.markdown("""
-<div style='background: rgba(255, 165, 0, 0.1); padding: 1.5rem; border-radius: 10px; margin: 2rem 0;'>
-    <h4 style='color: #ffa500; margin-bottom: 1rem;'>📊 Database Kota:</h4>
+<div style='background: rgba(255, 255, 255, 0.1); padding: 1.5rem; border-radius: 10px; margin: 2rem 0;'>
+    <h4 style='color: #ffffff; margin-bottom: 1rem;'>📊 Database Kota:</h4>
     <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;'>
-        <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
+        <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.2); border-radius: 8px;'>
             <div style='font-size: 2rem; color: #00aaff;'>35</div>
             <div style='color: #ccc;'>Kota Asia</div>
         </div>
-        <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
+        <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.2); border-radius: 8px;'>
             <div style='font-size: 2rem; color: #00aaff;'>15</div>
             <div style='color: #ccc;'>Kota Timur Tengah</div>
         </div>
-        <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
+        <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.2); border-radius: 8px;'>
             <div style='font-size: 2rem; color: #00aaff;'>25</div>
             <div style='color: #ccc;'>Kota Eropa</div>
         </div>
-        <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
+        <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.2); border-radius: 8px;'>
             <div style='font-size: 2rem; color: #00aaff;'>15</div>
             <div style='color: #ccc;'>Kota Amerika</div>
         </div>
-        <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
+        <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.2); border-radius: 8px;'>
             <div style='font-size: 2rem; color: #00aaff;'>10</div>
             <div style='color: #ccc;'>Kota Afrika</div>
         </div>
-        <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
+        <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.2); border-radius: 8px;'>
             <div style='font-size: 2rem; color: #00aaff;'>5</div>
             <div style='color: #ccc;'>Kota Oseania</div>
         </div>
     </div>
-    <div style='text-align: center; margin-top: 1.5rem; padding: 1rem; background: rgba(255,215,0,0.1); border-radius: 8px;'>
+    <div style='text-align: center; margin-top: 1.5rem; padding: 1rem; background: rgba(255,215,0,0.2); border-radius: 8px;'>
         <div style='font-size: 2.5rem; color: gold; font-weight: bold;'>105</div>
         <div style='color: #ccc; font-size: 1.1rem;'>Total Kota dari Seluruh Benua</div>
     </div>
@@ -917,13 +1002,13 @@ st.markdown("""
 # Footer modern dan profesional
 st.markdown("---")
 st.markdown("""
-<div style='background: linear-gradient(135deg, rgba(0, 170, 255, 0.1), rgba(255, 165, 0, 0.1)); 
+<div style='background: linear-gradient(135deg, rgba(0, 170, 255, 0.2), rgba(255, 165, 0, 0.2)); 
              padding: 2rem; 
              border-radius: 15px; 
              margin: 2rem 0;
-             border: 1px solid rgba(0, 170, 255, 0.3);'>
+             border: 1px solid rgba(255, 255, 255, 0.2);'>
     <div style='text-align: center;'>
-        <h3 style='color: #00aaff; margin-bottom: 1.5rem; font-size: 1.5rem;'>
+        <h3 style='color: #ffffff; margin-bottom: 1.5rem; font-size: 1.5rem;'>
             🕋 Arah Kiblat - Penunjuk Arah Sholat Digital
         </h3>
     </div>
@@ -934,7 +1019,7 @@ st.markdown("""
 col_f1, col_f2 = st.columns(2)
 with col_f1:
     st.markdown("""
-    <div style='background: rgba(0, 170, 255, 0.1); 
+    <div style='background: rgba(0, 170, 255, 0.2); 
                  padding: 1.2rem; 
                  border-radius: 10px; 
                  border-left: 4px solid #00aaff;
@@ -947,7 +1032,7 @@ with col_f1:
     """, unsafe_allow_html=True)
     
     st.markdown("""
-    <div style='background: rgba(0, 255, 136, 0.1); 
+    <div style='background: rgba(0, 255, 136, 0.2); 
                  padding: 1.2rem; 
                  border-radius: 10px; 
                  border-left: 4px solid #00FF88;
@@ -961,7 +1046,7 @@ with col_f1:
 
 with col_f2:
     st.markdown("""
-    <div style='background: rgba(255, 165, 0, 0.1); 
+    <div style='background: rgba(255, 165, 0, 0.2); 
                  padding: 1.2rem; 
                  border-radius: 10px; 
                  border-left: 4px solid #ffa500;
@@ -974,7 +1059,7 @@ with col_f2:
     """, unsafe_allow_html=True)
     
     st.markdown("""
-    <div style='background: rgba(187, 134, 252, 0.1); 
+    <div style='background: rgba(187, 134, 252, 0.2); 
                  padding: 1.2rem; 
                  border-radius: 10px; 
                  border-left: 4px solid #BB86FC;
@@ -990,9 +1075,9 @@ with col_f2:
 st.markdown("""
 <div style='margin-top: 1rem; 
              padding: 1.5rem; 
-             background: rgba(0, 0, 0, 0.3); 
+             background: rgba(255, 255, 255, 0.1); 
              border-radius: 10px;'>
-    <div style='color: #999; font-size: 0.95rem; line-height: 1.8;'>
+    <div style='color: #ccc; font-size: 0.95rem; line-height: 1.8;'>
         <p style='margin: 0.5rem 0;'>
             <span style='color: #00aaff;'>🌐</span> Mendukung ejaan <strong>Indonesia</strong> & <strong>Inggris</strong>
         </p>
@@ -1010,9 +1095,9 @@ st.markdown("""
 st.markdown("""
 <div style='margin-top: 1.5rem; 
              padding: 1rem; 
-             background: rgba(0, 0, 0, 0.3); 
+             background: rgba(255, 255, 255, 0.1); 
              border-radius: 8px;'>
-    <p style='color: #888; font-size: 0.85rem; margin: 0; font-style: italic;'>
+    <p style='color: #ccc; font-size: 0.85rem; margin: 0; font-style: italic;'>
         "Sesungguhnya kami melihat mukamu menengadah ke langit, maka benar-benar akan Kami palingkan engkau ke kiblat yang engkau senangi."<br>
         <span style='color: #00aaff;'>(QS. Al-Baqarah: 144)</span>
     </p>
@@ -1022,10 +1107,10 @@ st.markdown("""
 # Copyright
 st.markdown("""
 <div style='margin-top: 1.5rem; text-align: center;'>
-    <p style='color: #666; font-size: 0.8rem; margin: 0.3rem 0;'>© 2025 Aplikasi Arah Kiblat Digital</p>
-    <p style='color: #666; font-size: 0.8rem; margin: 0.3rem 0;'>Developed with ❤️ for Hamba Allah</p>
+    <p style='color: #999; font-size: 0.8rem; margin: 0.3rem 0;'>© 2025 Aplikasi Arah Kiblat Digital</p>
+    <p style='color: #999; font-size: 0.8rem; margin: 0.3rem 0;'>Developed with ❤️ for Hamba Allah</p>
 </div>
 """, unsafe_allow_html=True)
 
-
-
+# Close main container
+st.markdown('</div>', unsafe_allow_html=True)
