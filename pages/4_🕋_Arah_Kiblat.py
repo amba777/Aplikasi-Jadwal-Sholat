@@ -14,82 +14,83 @@ st.set_page_config(page_title="Arah Kiblat", layout="wide")
 
 st.title("🕋 Arah Kiblat")
 
-# CSS untuk styling modern
-st.markdown("""
 <style>
-    .main-header {
-        text-align: center;
-        color: #1e3a8a;
-        margin-bottom: 2rem;
-    }
-    .input-section {
-        background-color: #262730;
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
-        border-left: 5px solid #00aaff;
-    }
-    .result-section {
-        background-color: #262730;
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
-        border-left: 5px solid #ffa500;
-    }
-    .compass-section {
-        background-color: #262730;
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
-        text-align: center;
-    }
-    .qibla-direction {
-        font-size: 4rem;
-        font-weight: bold;
-        color: #00aaff;
-        text-align: center;
-        margin: 1rem 0;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    }
-    .degree-display {
-        font-size: 3rem;
-        font-weight: bold;
-        color: #ffa500;
-        text-align: center;
-        margin: 1rem 0;
-    }
-    .instruction-box {
-        background-color: #1e3a8a;
-        padding: 1.5rem;
-        border-radius: 10px;
-        margin-top: 1rem;
-    }
-    .stButton button {
-        width: 100%;
-        height: 60px;
-        font-size: 18px;
-        font-weight: bold;
-        border-radius: 10px;
-        border: none;
-        background: linear-gradient(135deg, #00aaff, #0088cc);
-        color: white;
-        transition: all 0.3s ease;
-    }
-    .stButton button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-    @media (max-width: 768px) {
-        .qibla-direction {
-            font-size: 2.5rem;
-        }
-        .degree-display {
-            font-size: 2rem;
-        }
-        .input-section, .result-section, .compass-section {
-            padding: 1rem;
-        }
-    }
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+
+.stApp {
+    background: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 100%);
+    color: #c9d1d9;
+    font-family: 'Poppins', sans-serif;
+}
+
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%);
+    border-right: 1px solid #2d3748;
+}
+
+/* KONSISTENSI FONT SIDEBAR */
+[data-testid="stSidebarNav"] li > a {
+    font-size: 1rem; font-weight: 500; color: #c9d1d9;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+[data-testid="stSidebarNav"] li > a:hover {
+    color: #00d4ff; background-color: rgba(0, 212, 255, 0.1);
+}
+[data-testid="stSidebarNav"] li > a.current-selection {
+    background-color: #00aaff; color: white; border-radius: 8px; font-weight: 600;
+}
+[data-testid="stSidebarNav"] li > a.current-selection:hover {
+    background-color: #00d4ff; color: white;
+}
+
+.main-header {
+    text-align: center; padding: 2rem 1rem; margin-bottom: 2rem;
+    background: linear-gradient(135deg, rgba(0, 170, 255, 0.1) 0%, rgba(0, 212, 255, 0.05) 100%);
+    border-radius: 20px; border: 1px solid rgba(0, 170, 255, 0.2);
+}
+.main-header h1 {
+    font-family: 'Poppins', sans-serif; font-size: 2.8rem; font-weight: 700;
+    color: #ffffff; text-shadow: 0 0 15px rgba(0, 212, 255, 0.5); margin: 0;
+}
+
+.styled-container {
+    background: rgba(22, 27, 34, 0.8); backdrop-filter: blur(10px);
+    border: 1px solid #30363d; border-radius: 20px;
+    padding: 2rem; margin-bottom: 2rem;
+    transition: all 0.3s ease;
+}
+.styled-container:hover { border-color: #00aaff; }
+
+.styled-container h3 {
+    color: #00aaff; font-family: 'Poppins', sans-serif;
+    margin-top: 0; margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 0.7rem;
+}
+
+/* Styling untuk Input, Button, Expander */
+div[data-testid="stTextInput"] input {
+    background-color: #21262d; border: 1px solid #30363d;
+    border-radius: 8px; color: #c9d1d9;
+}
+div[data-testid="stExpander"] {
+    background-color: transparent; border: 1px solid #30363d;
+    border-radius: 12px;
+}
+div[data-testid="stExpander"] summary { font-weight: 600; color: #00aaff; }
+
+.primary-button-wrapper .stButton button {
+    background: linear-gradient(135deg, #00aaff, #00d4ff); color: white;
+    height: 60px; font-size: 1.1rem; font-weight: 600;
+    border-radius: 12px; border: none; transition: all 0.3s ease;
+}
+.primary-button-wrapper .stButton button:hover {
+    transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0, 170, 255, 0.3);
+}
+
+.degree-display { font-size: 3rem; font-weight: bold; color: #00d4ff; text-align: center; margin: 1rem 0; }
+.qibla-direction { font-size: 2.5rem; font-weight: 600; color: #fafafa; text-align: center; margin: 1rem 0; }
+.instruction-box { background-color: #1a1f35; padding: 1.5rem; border-radius: 15px; margin-top: 2rem; border: 1px solid #00aaff;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -1025,5 +1026,6 @@ st.markdown("""
     <p style='color: #666; font-size: 0.8rem; margin: 0.3rem 0;'>Developed with ❤️ for Hamba Allah</p>
 </div>
 """, unsafe_allow_html=True)
+
 
 
