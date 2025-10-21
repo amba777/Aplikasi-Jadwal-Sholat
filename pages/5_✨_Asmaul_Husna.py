@@ -5,98 +5,157 @@ import time
 # Konfigurasi halaman
 st.set_page_config(
     page_title="Asmaul Husna - 99 Nama Allah",
-    page_icon="🕌",
+    page_icon="✨",
     layout="wide"
 )
 
-# CSS styling untuk tampilan modern dan responsif
+# --- CSS BARU (disesuaikan dengan tema Al-Quran) ---
 st.markdown("""
 <style>
-    /* Card untuk setiap nama */
-    .asma-card {
-        background-color: #262730; 
-        padding: 1.5rem;
-        border-radius: 12px;
-        border: 1px solid #444; 
-        margin-bottom: 1rem;
-        border-left: 5px solid #00aaff;
-        transition: transform 0.2s, border-color 0.2s;
-        height: 100%;
-        color: #fafafa;
-    }
-    .asma-card:hover {
-        transform: translateY(-3px);
-        border-left-color: #1890ff;
-    }
-    /* Teks Arab */
-    .arabic-text {
-        font-size: 2.2rem;
-        text-align: right;
-        font-family: 'Amiri', 'Traditional Arabic', serif;
-        margin-bottom: 0.5rem;
-        direction: rtl;
-        line-height: 1.5;
-        color: #fafafa;
-    }
-    /* Teks Latin */
-    .latin-text {
-        font-size: 1.3rem;
-        font-weight: bold;
-        color: #00aaff;
-        margin-bottom: 0.5rem;
-    }
-    /* Teks Arti */
-    .meaning-text {
-        color: #ccc;
-        font-size: 1rem;
-        line-height: 1.5;
-    }
-    /* Badge Nomor */
-    .number-badge {
-        background-color: #00aaff;
-        color: white;
-        width: 35px;
-        height: 35px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        margin-bottom: 1rem;
-    }
-    /* Info box untuk hasil pencarian */
-    .search-info {
-        background-color: #1e1e1e;
-        padding: 10px 15px;
-        border-radius: 8px;
-        border-left: 4px solid #00aaff;
-        margin-bottom: 1rem;
-    }
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+
+.stApp {
+    background: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 100%);
+    color: #c9d1d9;
+    font-family: 'Poppins', sans-serif;
+}
+
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%);
+    border-right: 1px solid #2d3748;
+}
+
+/* KONSISTENSI FONT SIDEBAR */
+[data-testid="stSidebarNav"] li > a {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #c9d1d9;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+[data-testid="stSidebarNav"] li > a:hover {
+    color: #00d4ff;
+    background-color: rgba(0, 212, 255, 0.1);
+}
+[data-testid="stSidebarNav"] li > a.current-selection {
+    background-color: #00aaff;
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+}
+[data-testid="stSidebarNav"] li > a.current-selection:hover {
+    background-color: #00d4ff;
+    color: white;
+}
+
+.main-header {
+    text-align: center;
+    padding: 2rem 1rem;
+    background: linear-gradient(135deg, rgba(0, 170, 255, 0.1) 0%, rgba(0, 212, 255, 0.05) 100%);
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(0, 170, 255, 0.2);
+}
+.main-header h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+    margin: 0;
+}
+.main-header p {
+    color: #8b949e;
+    font-size: 1.1rem;
+    margin-top: 10px;
+}
+
+/* Styling kartu Asmaul Husna */
+.asma-card {
+    background: rgba(22, 27, 34, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 1.5rem;
+    border-radius: 15px;
+    border: 1px solid #30363d;
+    margin-bottom: 1rem;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+    height: 100%;
+    color: #fafafa;
+}
+.asma-card:hover {
+    transform: translateY(-5px);
+    border-color: #00aaff;
+}
+.arabic-text {
+    font-size: 2.2rem;
+    text-align: right;
+    font-family: 'Amiri', 'Traditional Arabic', serif;
+    margin-bottom: 0.5rem;
+    direction: rtl;
+    line-height: 1.5;
+    color: #fafafa;
+}
+.latin-text {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #00d4ff; /* Warna aksen baru */
+    margin-bottom: 0.5rem;
+}
+.meaning-text {
+    color: #c9d1d9;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+.number-badge {
+    background: #00aaff; /* Warna aksen baru */
+    color: white;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+.search-info {
+    background: rgba(22, 27, 34, 0.8);
+    border: 1px solid #30363d;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+/* Styling Search Box dan Tombol */
+div[data-testid="stTextInput"] input {
+    background-color: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    color: #c9d1d9;
+}
+.stButton button {
+    border: 1px solid #4c566a;
+    background-color: #3b4252;
+    color: #eceff4;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+.stButton button:hover {
+    border-color: #d8dee9;
+    color: white;
+}
 </style>
 """, unsafe_allow_html=True)
 
 
 def clear_search():
-    """Fungsi callback untuk mengosongkan input pencarian."""
     st.session_state.search_input = ""
 
-
+@st.cache_data
 def load_data():
-    """Memuat data dari file JSON dengan notifikasi sementara."""
     try:
-        # Placeholder untuk notifikasi
-        placeholder = st.empty()
-        placeholder.info("🔄 Memuat data Asmaul Husna...")
-        
-        # Buka file JSON
         with open('data/asmaul_husna.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
-        
-        # Tampilkan pesan sukses dan hapus setelah 3 detik
-        placeholder.success(f"✅ Berhasil memuat {len(data)} data Asmaul Husna")
-        time.sleep(3)
-        placeholder.empty()
-        
         return data
     except FileNotFoundError:
         st.error("❌ File 'data/asmaul_husna.json' tidak ditemukan.")
@@ -106,12 +165,9 @@ def load_data():
         st.error(f"❌ Terjadi error saat memuat data: {e}")
         return []
 
-
 def filter_data(data, query):
-    """Filter data berdasarkan query pencarian."""
     if not query:
         return data
-    
     query = query.lower()
     return [
         item for item in data 
@@ -119,15 +175,12 @@ def filter_data(data, query):
            query in item.get('meaning', '').lower()
     ]
 
-
 def display_asma_card(item):
-    """Tampilkan satu kartu untuk setiap nama Asmaul Husna."""
     number = item.get('no', '')
     arabic = item.get('name', '')
     latin = item.get('latin', '')
     meaning = item.get('meaning', '')
     
-    # HTML untuk kartu, menggunakan class dari CSS di atas
     card_html = f"""
     <div class="asma-card">
         <div class="number-badge">{number}</div>
@@ -138,14 +191,11 @@ def display_asma_card(item):
     """
     st.markdown(card_html, unsafe_allow_html=True)
 
-
 def display_asmaul_husna_grid(data):
-    """Tampilkan semua data Asmaul Husna dalam grid yang responsif."""
     if not data:
         st.warning("⚠️ Tidak ada hasil yang ditemukan.")
         return
     
-    # Atur grid 3 kolom untuk desktop
     cols_per_row = 3
     for i in range(0, len(data), cols_per_row):
         cols = st.columns(cols_per_row)
@@ -154,25 +204,16 @@ def display_asmaul_husna_grid(data):
                 with cols[j]:
                     display_asma_card(data[i + j])
 
-# === FUNGSI BARU UNTUK FOOTER ===
 def display_footer():
-    """Menampilkan footer aplikasi dengan ayat Quran dan copyright."""
     st.markdown("---")
-    
-    # Ayat Al-Quran
     st.markdown("""
-    <div style='margin-top: 1.5rem; 
-                 padding: 1rem; 
-                 background: rgba(0, 0, 0, 0.3); 
-                 border-radius: 8px;'>
+    <div style='margin-top: 1.5rem; padding: 1rem; background: rgba(0, 0, 0, 0.3); border-radius: 8px;'>
         <p style='color: #888; font-size: 0.85rem; margin: 0; font-style: italic;'>
             "Dan Allah memiliki Asma'ul-husna (nama-nama yang terbaik), maka bermohonlah kepada-Nya dengan menyebutnya Asma'ul-husna itu..."<br>
             <span style='color: #00aaff;'>(QS. Al-A'raf: 180)</span>
         </p>
     </div>
     """, unsafe_allow_html=True)
-
-    # Copyright
     st.markdown("""
     <div style='margin-top: 1.5rem; text-align: center;'>
         <p style='color: #666; font-size: 0.8rem; margin: 0.3rem 0;'>© 2025 Aplikasi Asmaul Husna</p>
@@ -180,14 +221,15 @@ def display_footer():
     </div>
     """, unsafe_allow_html=True)
 
-
 def main():
-    """Fungsi utama untuk menjalankan aplikasi."""
-    st.title("🕌 Asmaul Husna - 99 Nama Allah")
-    st.caption("Mengenal Nama-Nama Indah Allah SWT")
-    st.markdown("---")
+    # Header baru yang sudah di-styling
+    st.markdown("""
+    <div class="main-header">
+        <h1>✨ Asmaul Husna - 99 Nama Allah</h1>
+        <p>Mengenal Nama-Nama Indah Allah SWT</p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Memuat data
     asmaul_husna_data = load_data()
     if not asmaul_husna_data:
         return
@@ -195,7 +237,6 @@ def main():
     # Tampilkan search box dan tombol reset
     st.markdown("### 🔍 Cari nama Allah")
     col_search, col_button = st.columns([4, 1])
-    
     with col_search:
         search_query = st.text_input(
             "Cari", 
@@ -203,16 +244,13 @@ def main():
             key="search_input",
             label_visibility="collapsed"
         )
-    
     with col_button:
         st.button("❌ Hapus Pencarian", on_click=clear_search, use_container_width=True)
             
     st.markdown("---")
     
-    # Filter data berdasarkan pencarian
     filtered_data = filter_data(asmaul_husna_data, search_query)
     
-    # Tampilkan info hasil pencarian
     if search_query:
         st.markdown(f"""
         <div class="search-info">
@@ -223,13 +261,8 @@ def main():
     else:
         st.markdown(f"**📊 Total: {len(asmaul_husna_data)} nama Allah**")
     
-    # Tampilkan grid kartu
     display_asmaul_husna_grid(filtered_data)
-    
-    # === PANGGIL FUNGSI FOOTER DI SINI ===
     display_footer()
 
-
-# Jalankan aplikasi
 if __name__ == "__main__":
     main()
