@@ -97,46 +97,101 @@ KAABA_LAT = 21.4225
 KAABA_LON = 39.8262
 
 def get_coordinates(city, country):
-    """Mendapatkan koordinat dari nama kota dan negara"""
+    """Mendapatkan koordinat dari nama kota dan negara dengan validasi ketat"""
     try:
+        # Cari dengan query yang lebih spesifik
         query = f'{city},{country}'
-        url = f"https://nominatim.openstreetmap.org/search?q={query}&format=json&addressdetails=1"
+        url = f"https://nominatim.openstreetmap.org/search?q={query}&format=json&addressdetails=1&limit=5"
         headers = {'User-Agent': 'AplikasiArahKiblat/1.0'}
         
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
         
         data = response.json()
-        if data and len(data) > 0:
-            result = data[0]
-            lat = float(result['lat'])
-            lon = float(result['lon'])
-            
-            # Validasi apakah hasil pencarian sesuai dengan kota dan negara
+        if not data or len(data) == 0:
+            return None, None, f"Kota '{city}' tidak ditemukan di negara '{country}'"
+        
+        # Cari hasil yang benar-benar sesuai dengan negara yang diminta
+        matched_result = None
+        for result in data:
             address = result.get('address', {})
-            display_name = result.get('display_name', '').lower()
-            
-            # Cek apakah negara sesuai
-            country_code = address.get('country', '').lower()
-            country_name = address.get('country', '').lower()
-            
-            if country.lower() not in display_name and country.lower() not in country_name:
-                return None, None, f"Negara '{country}' tidak ditemukan dalam hasil pencarian"
-            
-            # Cek apakah ini kota yang valid (bukan negara)
+            result_country = address.get('country', '').lower()
             location_type = result.get('type', '')
-            if location_type == 'country':
-                return None, None, f"'{city}' terdeteksi sebagai negara, bukan kota. Harap masukkan nama kota yang valid"
             
-            return lat, lon, None
-        else:
-            return None, None, "Lokasi tidak ditemukan"
+            # Skip jika tipe lokasi adalah negara
+            if location_type == 'country':
+                continue
+            
+            # Cek apakah negara benar-benar cocok
+            if result_country == country.lower() or country.lower() in result_country:
+                matched_result = result
+                break
+        
+        if not matched_result:
+            return None, None, f"Kota '{city}' tidak ditemukan di negara '{country}'. Pastikan kota dan negara sesuai!"
+        
+        # Validasi tambahan: pastikan bukan negara
+        if matched_result.get('type', '') == 'country':
+            return None, None, f"'{city}' adalah nama negara, bukan kota. Harap masukkan nama kota yang valid"
+        
+        # Ambil koordinat
+        lat = float(matched_result['lat'])
+        lon = float(matched_result['lon'])
+        
+        # Validasi final: cek apakah alamat lengkap mengandung negara yang benar
+        display_name = matched_result.get('display_name', '').lower()
+        address = matched_result.get('address', {})
+        result_country = address.get('country', '').lower()
+        
+        # Daftar negara yang umum dan variasinya
+        country_variations = {
+            'indonesia': ['indonesia'],
+            'malaysia': ['malaysia'],
+            'singapore': ['singapore', 'singapura'],
+            'thailand': ['thailand'],
+            'spain': ['spain', 'españa', 'spanyol'],
+            'france': ['france', 'perancis'],
+            'germany': ['germany', 'jerman', 'deutschland'],
+            'italy': ['italy', 'italia'],
+            'united kingdom': ['united kingdom', 'uk', 'inggris'],
+            'united states': ['united states', 'usa', 'amerika'],
+            'japan': ['japan', 'jepang', 'nihon'],
+            'china': ['china', 'cina', 'tiongkok'],
+            'india': ['india'],
+            'australia': ['australia'],
+            'saudi arabia': ['saudi arabia', 'arab saudi'],
+            'egypt': ['egypt', 'mesir'],
+            'turkey': ['turkey', 'turki', 'türkiye'],
+        }
+        
+        # Normalisasi input negara
+        country_lower = country.lower().strip()
+        country_found = False
+        
+        # Cek apakah negara input cocok dengan hasil
+        for key, variations in country_variations.items():
+            if country_lower in variations or key == country_lower:
+                if any(var in result_country or var in display_name for var in variations):
+                    country_found = True
+                    break
+        
+        # Fallback: cek langsung
+        if not country_found:
+            if country_lower in result_country or country_lower in display_name:
+                country_found = True
+        
+        if not country_found:
+            actual_country = address.get('country', 'Unknown')
+            return None, None, f"Kota '{city}' ditemukan di negara '{actual_country}', bukan '{country}'. Harap periksa kembali!"
+        
+        return lat, lon, None
+        
     except requests.exceptions.Timeout:
-        return None, None, "Timeout - Koneksi terlalu lama"
+        return None, None, "Timeout - Koneksi terlalu lama. Silakan coba lagi"
     except requests.exceptions.RequestException as e:
-        return None, None, f"Error koneksi: {str(e)}"
+        return None, None, f"Error koneksi: Tidak dapat terhubung ke server"
     except Exception as e:
-        return None, None, f"Error: {str(e)}"
+        return None, None, f"Terjadi kesalahan: {str(e)}"
 
 def calculate_qibla_direction(lat, lon):
     """Menghitung arah kiblat dari koordinat yang diberikan"""
@@ -319,11 +374,24 @@ if calculate_button:
         if error_msg:
             st.error(f"❌ {error_msg}")
             st.info("""
-            **💡 Tips:**
-            - Pastikan **Kota** adalah nama kota yang valid (contoh: Jakarta, Medan, Surabaya)
-            - Pastikan **Negara** adalah nama negara yang benar (contoh: Indonesia, Malaysia, Singapore)
+            **💡 Panduan Pengisian:**
+            
+            ✅ **Contoh yang BENAR:**
+            - Kota: `Jakarta` → Negara: `Indonesia`
+            - Kota: `Medan` → Negara: `Indonesia`
+            - Kota: `Kuala Lumpur` → Negara: `Malaysia`
+            - Kota: `Madrid` → Negara: `Spain`
+            - Kota: `Cairo` → Negara: `Egypt`
+            
+            ❌ **Contoh yang SALAH:**
+            - Kota: `Madrid` → Negara: `Indonesia` ❌ (Madrid ada di Spain)
+            - Kota: `Indonesia` → Negara: `Jakarta` ❌ (Terbalik)
+            - Kota: `Spanyol` → Negara: `Indonesia` ❌ (Spanyol adalah negara)
+            
+            **Tips:**
+            - Pastikan kota yang Anda masukkan **benar-benar ada** di negara tersebut
+            - Gunakan ejaan bahasa Inggris untuk hasil terbaik
             - Jangan menukar posisi kota dan negara
-            - Gunakan ejaan yang benar
             """)
         elif user_lat is not None and user_lon is not None:
             # --- Result Section ---
