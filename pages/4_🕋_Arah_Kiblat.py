@@ -97,7 +97,7 @@ st.markdown("""
 KAABA_LAT = 21.4225
 KAABA_LON = 39.8262
 
-# Database lengkap kota dan negara (100 kota dari seluruh dunia)
+# Database lengkap kota dan negara (100+ kota dari seluruh dunia)
 CITY_DATABASE = {
     # ASIA - 35 kota
     'jakarta': {'country': 'indonesia', 'lat': -6.2088, 'lon': 106.8456},
@@ -309,12 +309,11 @@ def validate_city_country(city, country):
             return False, f"❌ Kota '{city.title()}' berada di **{correct_country.title()}**, bukan di {country.title()}!"
         return True, None
     
-    return False, f"❌ Kota '{city.title()}' tidak ditemukan dalam database. Gunakan salah satu dari 100 kota yang tersedia."
+    return False, f"❌ Kota '{city.title()}' tidak ditemukan dalam database. Gunakan salah satu dari 100+ kota yang tersedia."
 
 def get_coordinates(city, country):
     """Mendapatkan koordinat dari database atau API"""
     city_normalized = normalize_input(city)
-    country_normalized = correct_country_name(country)
     
     # Validasi dulu
     is_valid, error_msg = validate_city_country(city, country)
@@ -466,7 +465,7 @@ def create_compass_figure(qibla_angle):
             theta=[0],
             mode='markers',
             marker=dict(size=size, color=f'rgba(0, 255, 136, {alpha})', 
-                       line=dict(color='white', width=0)),
+                        line=dict(color='white', width=0)),
             showlegend=False
         ))
     
@@ -476,7 +475,7 @@ def create_compass_figure(qibla_angle):
         theta=[0],
         mode='markers',
         marker=dict(size=15, color='white', 
-                   line=dict(color='#00FF88', width=3)),
+                    line=dict(color='#00FF88', width=3)),
         showlegend=False
     ))
     
@@ -486,7 +485,7 @@ def create_compass_figure(qibla_angle):
         theta=[qibla_angle],
         mode='markers+text',
         marker=dict(size=35, color='rgba(0, 255, 136, 0.2)', 
-                   line=dict(color='#00FF88', width=2)),
+                    line=dict(color='#00FF88', width=2)),
         text=['🕋'],
         textfont=dict(size=18),
         showlegend=False
@@ -529,14 +528,14 @@ def create_compass_figure(qibla_angle):
 def get_direction_name(degrees):
     """Mengubah derajat menjadi nama arah mata angin lengkap"""
     directions = [
-        (0, 22.5, "Utara"), 
-        (22.5, 67.5, "Timur Laut"), 
+        (0, 22.5, "Utara"),  
+        (22.5, 67.5, "Timur Laut"),  
         (67.5, 112.5, "Timur"),
-        (112.5, 157.5, "Tenggara"), 
-        (157.5, 202.5, "Selatan"), 
+        (112.5, 157.5, "Tenggara"),  
+        (157.5, 202.5, "Selatan"),  
         (202.5, 247.5, "Barat Daya"),
-        (247.5, 292.5, "Barat"), 
-        (292.5, 337.5, "Barat Laut"), 
+        (247.5, 292.5, "Barat"),  
+        (292.5, 337.5, "Barat Laut"),  
         (337.5, 360, "Utara")
     ]
     
@@ -562,7 +561,7 @@ with col2:
     st.caption("⚠️ Masukkan NEGARA yang sesuai dengan kota")
 
 # Tampilkan daftar 100 kota yang tersedia
-with st.expander("📋 Lihat 100 Kota yang Tersedia"):
+with st.expander("📋 Lihat 100+ Kota yang Tersedia"):
     st.markdown("### 🌏 ASIA (35 kota)")
     col_a1, col_a2, col_a3 = st.columns(3)
     with col_a1:
@@ -761,8 +760,8 @@ if calculate_button:
             else:
                 st.info("""
                 **💡 Tips:**
-                - Pastikan kota yang Anda masukkan ada dalam daftar 100 kota yang tersedia
-                - Klik "📋 Lihat 100 Kota yang Tersedia" untuk melihat daftar lengkap
+                - Pastikan kota yang Anda masukkan ada dalam daftar 100+ kota yang tersedia
+                - Klik "📋 Lihat 100+ Kota yang Tersedia" untuk melihat daftar lengkap
                 - Pastikan negara sesuai dengan kotanya (contoh: Madrid harus dengan Spanyol)
                 """)
         
@@ -843,11 +842,11 @@ st.markdown("""
 <div style='background: rgba(0, 170, 255, 0.1); padding: 1.5rem; border-radius: 10px; margin: 2rem 0;'>
     <h4 style='color: #00aaff; margin-bottom: 1rem;'>💡 Cara Menggunakan:</h4>
     <ul style='color: #ccc; margin: 0;'>
-        <li>Masukkan <strong>nama kota</strong> dari 100 kota yang tersedia</li>
+        <li>Masukkan <strong>nama kota</strong> dari 100+ kota yang tersedia</li>
         <li>Masukkan <strong>nama negara</strong> yang <strong>SESUAI</strong> dengan kota tersebut</li>
         <li>Contoh: <strong>Madrid → Spanyol</strong> ✅ (bukan negara lain ❌)</li>
         <li>Bisa menggunakan <strong>huruf besar/kecil</strong> dan ejaan <strong>Indonesia/Inggris</strong></li>
-        <li>Klik <strong>"📋 Lihat 100 Kota yang Tersedia"</strong> untuk melihat daftar lengkap</li>
+        <li>Klik <strong>"📋 Lihat 100+ Kota yang Tersedia"</strong> untuk melihat daftar lengkap</li>
         <li>Sistem akan <strong>validasi otomatis</strong> kecocokan kota dan negara</li>
     </ul>
     
@@ -866,52 +865,52 @@ st.markdown("""
     </ul>
 </div>
 """, unsafe_allow_html=True)
-    
-    # Statistik
-    st.markdown("""
-    <div style='background: rgba(255, 165, 0, 0.1); padding: 1.5rem; border-radius: 10px; margin: 2rem 0;'>
-        <h4 style='color: #ffa500; margin-bottom: 1rem;'>📊 Database Kota:</h4>
-        <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;'>
-            <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
-                <div style='font-size: 2rem; color: #00aaff;'>35</div>
-                <div style='color: #ccc;'>Kota Asia</div>
-            </div>
-            <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
-                <div style='font-size: 2rem; color: #00aaff;'>15</div>
-                <div style='color: #ccc;'>Kota Timur Tengah</div>
-            </div>
-            <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
-                <div style='font-size: 2rem; color: #00aaff;'>25</div>
-                <div style='color: #ccc;'>Kota Eropa</div>
-            </div>
-            <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
-                <div style='font-size: 2rem; color: #00aaff;'>15</div>
-                <div style='color: #ccc;'>Kota Amerika</div>
-            </div>
-            <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
-                <div style='font-size: 2rem; color: #00aaff;'>10</div>
-                <div style='color: #ccc;'>Kota Afrika</div>
-            </div>
-            <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
-                <div style='font-size: 2rem; color: #00aaff;'>5</div>
-                <div style='color: #ccc;'>Kota Oseania</div>
-            </div>
+
+# Statistik
+st.markdown("""
+<div style='background: rgba(255, 165, 0, 0.1); padding: 1.5rem; border-radius: 10px; margin: 2rem 0;'>
+    <h4 style='color: #ffa500; margin-bottom: 1rem;'>📊 Database Kota:</h4>
+    <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;'>
+        <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
+            <div style='font-size: 2rem; color: #00aaff;'>35</div>
+            <div style='color: #ccc;'>Kota Asia</div>
         </div>
-        <div style='text-align: center; margin-top: 1.5rem; padding: 1rem; background: rgba(255,215,0,0.1); border-radius: 8px;'>
-            <div style='font-size: 2.5rem; color: gold; font-weight: bold;'>105</div>
-            <div style='color: #ccc; font-size: 1.1rem;'>Total Kota dari Seluruh Benua</div>
+        <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
+            <div style='font-size: 2rem; color: #00aaff;'>15</div>
+            <div style='color: #ccc;'>Kota Timur Tengah</div>
+        </div>
+        <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
+            <div style='font-size: 2rem; color: #00aaff;'>25</div>
+            <div style='color: #ccc;'>Kota Eropa</div>
+        </div>
+        <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
+            <div style='font-size: 2rem; color: #00aaff;'>15</div>
+            <div style='color: #ccc;'>Kota Amerika</div>
+        </div>
+        <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
+            <div style='font-size: 2rem; color: #00aaff;'>10</div>
+            <div style='color: #ccc;'>Kota Afrika</div>
+        </div>
+        <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
+            <div style='font-size: 2rem; color: #00aaff;'>5</div>
+            <div style='color: #ccc;'>Kota Oseania</div>
         </div>
     </div>
-    """, unsafe_allow_html=True)
+    <div style='text-align: center; margin-top: 1.5rem; padding: 1rem; background: rgba(255,215,0,0.1); border-radius: 8px;'>
+        <div style='font-size: 2.5rem; color: gold; font-weight: bold;'>105</div>
+        <div style='color: #ccc; font-size: 1.1rem;'>Total Kota dari Seluruh Benua</div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # Footer modern dan profesional
 st.markdown("---")
 st.markdown("""
 <div style='background: linear-gradient(135deg, rgba(0, 170, 255, 0.1), rgba(255, 165, 0, 0.1)); 
-            padding: 2rem; 
-            border-radius: 15px; 
-            margin: 2rem 0;
-            border: 1px solid rgba(0, 170, 255, 0.3);'>
+             padding: 2rem; 
+             border-radius: 15px; 
+             margin: 2rem 0;
+             border: 1px solid rgba(0, 170, 255, 0.3);'>
     <div style='text-align: center;'>
         <h3 style='color: #00aaff; margin-bottom: 1.5rem; font-size: 1.5rem;'>
             🕋 Arah Kiblat - Penunjuk Arah Sholat Digital
@@ -925,10 +924,10 @@ col_f1, col_f2 = st.columns(2)
 with col_f1:
     st.markdown("""
     <div style='background: rgba(0, 170, 255, 0.1); 
-                padding: 1.2rem; 
-                border-radius: 10px; 
-                border-left: 4px solid #00aaff;
-                margin-bottom: 1rem;'>
+                 padding: 1.2rem; 
+                 border-radius: 10px; 
+                 border-left: 4px solid #00aaff;
+                 margin-bottom: 1rem;'>
         <div style='font-size: 1.8rem; margin-bottom: 0.5rem;'>📍</div>
         <div style='color: #00aaff; font-weight: bold; margin-bottom: 0.3rem;'>Koordinat Ka'bah</div>
         <div style='color: #ccc; font-size: 0.9rem;'>21.4225°N, 39.8262°E</div>
@@ -938,10 +937,10 @@ with col_f1:
     
     st.markdown("""
     <div style='background: rgba(0, 255, 136, 0.1); 
-                padding: 1.2rem; 
-                border-radius: 10px; 
-                border-left: 4px solid #00FF88;
-                margin-bottom: 1rem;'>
+                 padding: 1.2rem; 
+                 border-radius: 10px; 
+                 border-left: 4px solid #00FF88;
+                 margin-bottom: 1rem;'>
         <div style='font-size: 1.8rem; margin-bottom: 0.5rem;'>🌍</div>
         <div style='color: #00FF88; font-weight: bold; margin-bottom: 0.3rem;'>Cakupan Global</div>
         <div style='color: #ccc; font-size: 0.9rem;'>105 Kota Utama</div>
@@ -952,10 +951,10 @@ with col_f1:
 with col_f2:
     st.markdown("""
     <div style='background: rgba(255, 165, 0, 0.1); 
-                padding: 1.2rem; 
-                border-radius: 10px; 
-                border-left: 4px solid #ffa500;
-                margin-bottom: 1rem;'>
+                 padding: 1.2rem; 
+                 border-radius: 10px; 
+                 border-left: 4px solid #ffa500;
+                 margin-bottom: 1rem;'>
         <div style='font-size: 1.8rem; margin-bottom: 0.5rem;'>✅</div>
         <div style='color: #ffa500; font-weight: bold; margin-bottom: 0.3rem;'>Validasi Otomatis</div>
         <div style='color: #ccc; font-size: 0.9rem;'>Sistem Verifikasi</div>
@@ -965,10 +964,10 @@ with col_f2:
     
     st.markdown("""
     <div style='background: rgba(187, 134, 252, 0.1); 
-                padding: 1.2rem; 
-                border-radius: 10px; 
-                border-left: 4px solid #BB86FC;
-                margin-bottom: 1rem;'>
+                 padding: 1.2rem; 
+                 border-radius: 10px; 
+                 border-left: 4px solid #BB86FC;
+                 margin-bottom: 1rem;'>
         <div style='font-size: 1.8rem; margin-bottom: 0.5rem;'>🧭</div>
         <div style='color: #BB86FC; font-weight: bold; margin-bottom: 0.3rem;'>Kompas Visual</div>
         <div style='color: #ccc; font-size: 0.9rem;'>Modern & Interaktif</div>
@@ -979,9 +978,9 @@ with col_f2:
 # Informasi tambahan
 st.markdown("""
 <div style='margin-top: 1rem; 
-            padding: 1.5rem; 
-            background: rgba(0, 0, 0, 0.3); 
-            border-radius: 10px;'>
+             padding: 1.5rem; 
+             background: rgba(0, 0, 0, 0.3); 
+             border-radius: 10px;'>
     <div style='color: #999; font-size: 0.95rem; line-height: 1.8;'>
         <p style='margin: 0.5rem 0;'>
             <span style='color: #00aaff;'>🌐</span> Mendukung ejaan <strong>Indonesia</strong> & <strong>Inggris</strong>
@@ -999,9 +998,9 @@ st.markdown("""
 # Ayat Al-Quran
 st.markdown("""
 <div style='margin-top: 1.5rem; 
-            padding: 1rem; 
-            background: rgba(0, 0, 0, 0.3); 
-            border-radius: 8px;'>
+             padding: 1rem; 
+             background: rgba(0, 0, 0, 0.3); 
+             border-radius: 8px;'>
     <p style='color: #888; font-size: 0.85rem; margin: 0; font-style: italic;'>
         "Sesungguhnya kami melihat mukamu menengadah ke langit, maka benar-benar akan Kami palingkan engkau ke kiblat yang engkau senangi."<br>
         <span style='color: #00aaff;'>(QS. Al-Baqarah: 144)</span>
@@ -1016,4 +1015,3 @@ st.markdown("""
     <p style='color: #666; font-size: 0.8rem; margin: 0.3rem 0;'>Developed with ❤️ for Hamba Allah</p>
 </div>
 """, unsafe_allow_html=True)
-
