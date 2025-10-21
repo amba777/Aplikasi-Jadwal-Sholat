@@ -58,7 +58,6 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&display=swap');
-/* Styles ... (CSS Anda yang sudah ada tetap di sini, tidak saya ubah) */
 .stApp { background-color: #0d1117; color: #c9d1d9; }
 body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 10% 20%, rgba(102, 126, 234, 0.2) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(118, 75, 162, 0.2) 0%, transparent 40%); z-index: -1; animation: move-gradient 20s linear infinite; }
 @keyframes move-gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
@@ -96,7 +95,6 @@ body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; heigh
 </style>
 """, unsafe_allow_html=True)
 
-# --- FUNGSI UNTUK MEMUTAR AZAN ---
 def get_azan_file(prayer_name):
     if prayer_name in AZAN_FILES:
         audio_path = AUDIO_DIR / AZAN_FILES[prayer_name]
@@ -110,7 +108,7 @@ def play_azan_audio(prayer_name):
         try:
             with open(azan_file, "rb") as f:
                 audio_bytes = f.read()
-                audio_base64 = base64.b64encode(audio_bytes).decode()
+            audio_base64 = base64.b64encode(audio_bytes).decode()
             st.markdown(f'<audio autoplay><source src="data:audio/mpeg;base64,{audio_base64}" type="audio/mpeg"></audio>', unsafe_allow_html=True)
         except Exception as e:
             st.error(f"❌ Error membaca file audio: {e}")
@@ -158,7 +156,6 @@ def check_azan_time(prayer_times_dict):
     
     return None
 
-# --- Fungsi Backend ---
 @st.cache_data(ttl=3600)
 def get_prayer_times(lat, lon, date_str):
     try:
@@ -217,25 +214,16 @@ def find_next_prayer(prayer_times_dict):
     
     return sholat_berikutnya, waktu_sholat_berikutnya_str, f"{jam:02d}:{menit:02d}:{detik:02d}"
 
-# --- FUNGSI BARU UNTUK FOOTER ---
 def display_footer():
-    """Menampilkan footer aplikasi dengan ayat Quran dan copyright."""
     st.markdown("---")
-    
-    # Ayat Al-Quran
     st.markdown("""
-    <div style='margin-top: 1.5rem; 
-                 padding: 1rem; 
-                 background: rgba(0, 0, 0, 0.3); 
-                 border-radius: 8px;'>
+    <div style='margin-top: 1.5rem; padding: 1rem; background: rgba(0, 0, 0, 0.3); border-radius: 8px;'>
         <p style='color: #888; font-size: 0.85rem; margin: 0; font-style: italic;'>
             "Dirikanlah shalat dari sesudah matahari tergelincir sampai gelap malam dan (dirikanlah pula shalat) subuh. Sesungguhnya shalat subuh itu disaksikan (oleh malaikat)."<br>
             <span style='color: #58a6ff;'>(QS. Al-Isra': 78)</span>
         </p>
     </div>
     """, unsafe_allow_html=True)
-
-    # Copyright
     st.markdown("""
     <div style='margin-top: 1.5rem; text-align: center;'>
         <p style='color: #666; font-size: 0.8rem; margin: 0.3rem 0;'>© 2025 Jadwal Sholat Digital</p>
@@ -243,27 +231,34 @@ def display_footer():
     </div>
     """, unsafe_allow_html=True)
 
-
-# --- UI UTAMA ---
 st.markdown('<div class="main-container">', unsafe_allow_html=True)
-
 st.markdown('<div class="header-section"><h1 class="header-title">🕌 Aplikasi Jadwal Sholat</h1><p class="header-subtitle">Waktu sholat terkini dengan notifikasi azan otomatis</p></div>', unsafe_allow_html=True)
 
 with st.sidebar:
     st.header("📊 Informasi Aplikasi")
-    st.subheader("🔊 Status Audio Azan")
-    audio_status = check_audio_files()
-    if all(status['exists'] for status in audio_status.values()):
-        st.success("✅ Semua file azan tersedia")
-    else:
-        st.warning("⚠️ Sebagian file azan tidak ada, akan menggunakan fallback online.")
-    st.divider()
-    st.subheader("📍 Lokasi")
-    st.write("**Kota:** Medan\n\n**Koordinat:** 3.5952° N, 98.6722° E")
-    st.divider()
-    st.subheader("🕒 Status Azan Hari Ini")
-    for sholat, status in st.session_state.azan_played_today.items():
-        st.write(f"{'✅' if status else '⏳'} **{sholat}**: {'Sudah' if status else 'Belum'}")
+    with st.expander("Tampilkan Detail & Status"):
+        st.subheader("🔊 Status Audio Azan")
+        audio_status = check_audio_files()
+        subuh_ready = audio_status["Subuh"]['exists']
+        others_ready = all(audio_status[prayer]['exists'] for prayer in ["Dzuhur", "Ashar", "Maghrib", "Isya"])
+        if subuh_ready and others_ready:
+            st.success("✅ Semua file azan tersedia")
+            st.info("**Konfigurasi Audio:**\n- Subuh: fajr_128_44.mp3\n- Lainnya: Adzan-Misyari-Rasyid.mp3")
+        elif subuh_ready:
+            st.warning("⚠️ File azan Subuh tersedia, lainnya menggunakan fallback")
+        elif others_ready:
+            st.warning("⚠️ File azan Dzuhur-Isya tersedia, Subuh menggunakan fallback")
+        else:
+            st.error("❌ File azan tidak ditemukan, menggunakan audio online")
+        st.divider()
+        st.subheader("📍 Lokasi")
+        st.write("**Kota:** Medan")
+        st.write("**Koordinat:** 3.5952° N, 98.6722° E")
+        st.divider()
+        st.subheader("🕒 Status Azan Hari Ini")
+        for sholat, status in st.session_state.azan_played_today.items():
+            icon = "✅" if status else "⏳"
+            st.write(f"{icon} **{sholat}**: {'Sudah' if status else 'Belum'} diputar")
 
 lat, lon = 3.5952, 98.6722
 hari_ini_str = datetime.now().strftime("%d-%m-%Y")
@@ -289,7 +284,7 @@ if data_sholat:
         <div class="card">
             <div class="next-label">Sholat Berikutnya</div>
             <div class="next-name">{nama_sholat_berikutnya}</div>
-            <div class="next-time">{waktu_sholat_berikutnya}</div>
+            <div class.next-time">{waktu_sholat_berikutnya}</div>
             <div class="countdown">⏳ {hitung_mundur}</div>
         </div>
     </div>
@@ -307,7 +302,7 @@ if data_sholat:
     st.markdown("---")
     col1, col2 = st.columns([3, 1])
     with col1:
-        st.info("Fitur Aplikasi:\n\n- ✅ Jadwal sholat otomatis untuk Kota Medan\n- ✅ Notifikasi azan tepat waktu\n- ✅ Audio azan berbeda untuk Subuh\n- ✅ Kalender Hijriyah & Masehi\n- ✅ Auto-refresh setiap detik")
+        st.info("Fitur Aplikasi:\n\n- ✅ Jadwal sholat otomatis untuk Kota Medan\n- ✅ Notifikasi azan tepat waktu\n- ✅ Audio azan berbeda untuk Subuh\n- ✅ Kalender Hijriyah & Masehi\n- ✅ Auto-refresh")
     with col2:
         if st.button("🔄 Refresh Data", use_container_width=True):
             st.rerun()
@@ -315,11 +310,8 @@ if data_sholat:
 else:
     st.error("❌ Gagal mengambil data jadwal sholat. Periksa koneksi internet Anda.")
 
-# --- PANGGIL FUNGSI FOOTER DI SINI ---
 display_footer()
-
 st.markdown('</div>', unsafe_allow_html=True)
 
-# Auto-refresh
 time_module.sleep(1)
 st.rerun()
