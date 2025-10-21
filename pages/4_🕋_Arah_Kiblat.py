@@ -917,85 +917,103 @@ st.markdown("""
         <h3 style='color: #00aaff; margin-bottom: 1.5rem; font-size: 1.5rem;'>
             🕋 Arah Kiblat - Penunjuk Arah Sholat Digital
         </h3>
-        
-        <div style='display: grid; 
-                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
-                    gap: 1.5rem; 
-                    margin: 1.5rem 0;'>
-            
-            <div style='background: rgba(0, 170, 255, 0.1); 
-                        padding: 1.2rem; 
-                        border-radius: 10px; 
-                        border-left: 4px solid #00aaff;'>
-                <div style='font-size: 1.8rem; margin-bottom: 0.5rem;'>📍</div>
-                <div style='color: #00aaff; font-weight: bold; margin-bottom: 0.3rem;'>Koordinat Ka'bah</div>
-                <div style='color: #ccc; font-size: 0.9rem;'>21.4225°N, 39.8262°E</div>
-                <div style='color: #999; font-size: 0.85rem; margin-top: 0.3rem;'>Makkah Al-Mukarramah</div>
-            </div>
-            
-            <div style='background: rgba(0, 255, 136, 0.1); 
-                        padding: 1.2rem; 
-                        border-radius: 10px; 
-                        border-left: 4px solid #00FF88;'>
-                <div style='font-size: 1.8rem; margin-bottom: 0.5rem;'>🌍</div>
-                <div style='color: #00FF88; font-weight: bold; margin-bottom: 0.3rem;'>Cakupan Global</div>
-                <div style='color: #ccc; font-size: 0.9rem;'>105 Kota Utama</div>
-                <div style='color: #999; font-size: 0.85rem; margin-top: 0.3rem;'>6 Benua Tersedia</div>
-            </div>
-            
-            <div style='background: rgba(255, 165, 0, 0.1); 
-                        padding: 1.2rem; 
-                        border-radius: 10px; 
-                        border-left: 4px solid #ffa500;'>
-                <div style='font-size: 1.8rem; margin-bottom: 0.5rem;'>✅</div>
-                <div style='color: #ffa500; font-weight: bold; margin-bottom: 0.3rem;'>Validasi Otomatis</div>
-                <div style='color: #ccc; font-size: 0.9rem;'>Sistem Verifikasi</div>
-                <div style='color: #999; font-size: 0.85rem; margin-top: 0.3rem;'>Kota & Negara Akurat</div>
-            </div>
-            
-            <div style='background: rgba(187, 134, 252, 0.1); 
-                        padding: 1.2rem; 
-                        border-radius: 10px; 
-                        border-left: 4px solid #BB86FC;'>
-                <div style='font-size: 1.8rem; margin-bottom: 0.5rem;'>🧭</div>
-                <div style='color: #BB86FC; font-weight: bold; margin-bottom: 0.3rem;'>Kompas Visual</div>
-                <div style='color: #ccc; font-size: 0.9rem;'>Modern & Interaktif</div>
-                <div style='color: #999; font-size: 0.85rem; margin-top: 0.3rem;'>Akurasi Tinggi</div>
-            </div>
-            
-        </div>
-        
-        <div style='margin-top: 2rem; 
-                    padding-top: 1.5rem; 
-                    border-top: 1px solid rgba(255,255,255,0.1);'>
-            <div style='color: #999; font-size: 0.95rem; line-height: 1.8;'>
-                <p style='margin: 0.5rem 0;'>
-                    <span style='color: #00aaff;'>🌐</span> Mendukung ejaan <strong>Indonesia</strong> & <strong>Inggris</strong>
-                </p>
-                <p style='margin: 0.5rem 0;'>
-                    <span style='color: #00FF88;'>💡</span> Perhitungan menggunakan <strong>Formula Haversine</strong> untuk akurasi maksimal
-                </p>
-                <p style='margin: 0.5rem 0;'>
-                    <span style='color: #ffa500;'>⚡</span> Database lokal untuk <strong>respon instan</strong> tanpa koneksi internet
-                </p>
-            </div>
-        </div>
-        
-        <div style='margin-top: 1.5rem; 
-                    padding: 1rem; 
-                    background: rgba(0, 0, 0, 0.3); 
-                    border-radius: 8px;'>
-            <p style='color: #888; font-size: 0.85rem; margin: 0; font-style: italic;'>
-                "Sesungguhnya kami melihat mukamu menengadah ke langit, maka benar-benar akan Kami palingkan engkau ke kiblat yang engkau senangi."<br>
-                <span style='color: #00aaff;'>(QS. Al-Baqarah: 144)</span>
-            </p>
-        </div>
-        
-        <div style='margin-top: 1.5rem; color: #666; font-size: 0.8rem;'>
-            <p style='margin: 0.3rem 0;'>© 2025 Aplikasi Arah Kiblat Digital</p>
-            <p style='margin: 0.3rem 0;'>Developed with ❤️ for Muslim Community Worldwide</p>
-        </div>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
+# Grid items menggunakan Streamlit columns
+col_f1, col_f2 = st.columns(2)
+with col_f1:
+    st.markdown("""
+    <div style='background: rgba(0, 170, 255, 0.1); 
+                padding: 1.2rem; 
+                border-radius: 10px; 
+                border-left: 4px solid #00aaff;
+                margin-bottom: 1rem;'>
+        <div style='font-size: 1.8rem; margin-bottom: 0.5rem;'>📍</div>
+        <div style='color: #00aaff; font-weight: bold; margin-bottom: 0.3rem;'>Koordinat Ka'bah</div>
+        <div style='color: #ccc; font-size: 0.9rem;'>21.4225°N, 39.8262°E</div>
+        <div style='color: #999; font-size: 0.85rem; margin-top: 0.3rem;'>Makkah Al-Mukarramah</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div style='background: rgba(0, 255, 136, 0.1); 
+                padding: 1.2rem; 
+                border-radius: 10px; 
+                border-left: 4px solid #00FF88;
+                margin-bottom: 1rem;'>
+        <div style='font-size: 1.8rem; margin-bottom: 0.5rem;'>🌍</div>
+        <div style='color: #00FF88; font-weight: bold; margin-bottom: 0.3rem;'>Cakupan Global</div>
+        <div style='color: #ccc; font-size: 0.9rem;'>105 Kota Utama</div>
+        <div style='color: #999; font-size: 0.85rem; margin-top: 0.3rem;'>6 Benua Tersedia</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col_f2:
+    st.markdown("""
+    <div style='background: rgba(255, 165, 0, 0.1); 
+                padding: 1.2rem; 
+                border-radius: 10px; 
+                border-left: 4px solid #ffa500;
+                margin-bottom: 1rem;'>
+        <div style='font-size: 1.8rem; margin-bottom: 0.5rem;'>✅</div>
+        <div style='color: #ffa500; font-weight: bold; margin-bottom: 0.3rem;'>Validasi Otomatis</div>
+        <div style='color: #ccc; font-size: 0.9rem;'>Sistem Verifikasi</div>
+        <div style='color: #999; font-size: 0.85rem; margin-top: 0.3rem;'>Kota & Negara Akurat</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div style='background: rgba(187, 134, 252, 0.1); 
+                padding: 1.2rem; 
+                border-radius: 10px; 
+                border-left: 4px solid #BB86FC;
+                margin-bottom: 1rem;'>
+        <div style='font-size: 1.8rem; margin-bottom: 0.5rem;'>🧭</div>
+        <div style='color: #BB86FC; font-weight: bold; margin-bottom: 0.3rem;'>Kompas Visual</div>
+        <div style='color: #ccc; font-size: 0.9rem;'>Modern & Interaktif</div>
+        <div style='color: #999; font-size: 0.85rem; margin-top: 0.3rem;'>Akurasi Tinggi</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Informasi tambahan
+st.markdown("""
+<div style='margin-top: 1rem; 
+            padding: 1.5rem; 
+            background: rgba(0, 0, 0, 0.3); 
+            border-radius: 10px;'>
+    <div style='color: #999; font-size: 0.95rem; line-height: 1.8;'>
+        <p style='margin: 0.5rem 0;'>
+            <span style='color: #00aaff;'>🌐</span> Mendukung ejaan <strong>Indonesia</strong> & <strong>Inggris</strong>
+        </p>
+        <p style='margin: 0.5rem 0;'>
+            <span style='color: #00FF88;'>💡</span> Perhitungan menggunakan <strong>Formula Haversine</strong> untuk akurasi maksimal
+        </p>
+        <p style='margin: 0.5rem 0;'>
+            <span style='color: #ffa500;'>⚡</span> Database lokal untuk <strong>respon instan</strong> tanpa koneksi internet
+        </p>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# Ayat Al-Quran
+st.markdown("""
+<div style='margin-top: 1.5rem; 
+            padding: 1rem; 
+            background: rgba(0, 0, 0, 0.3); 
+            border-radius: 8px;'>
+    <p style='color: #888; font-size: 0.85rem; margin: 0; font-style: italic;'>
+        "Sesungguhnya kami melihat mukamu menengadah ke langit, maka benar-benar akan Kami palingkan engkau ke kiblat yang engkau senangi."<br>
+        <span style='color: #00aaff;'>(QS. Al-Baqarah: 144)</span>
+    </p>
+</div>
+""", unsafe_allow_html=True)
+
+# Copyright
+st.markdown("""
+<div style='margin-top: 1.5rem; text-align: center;'>
+    <p style='color: #666; font-size: 0.8rem; margin: 0.3rem 0;'>© 2025 Aplikasi Arah Kiblat Digital</p>
+    <p style='color: #666; font-size: 0.8rem; margin: 0.3rem 0;'>Developed with ❤️ for Muslim Community Worldwide</p>
+</div>
+""", unsafe_allow_html=True)
