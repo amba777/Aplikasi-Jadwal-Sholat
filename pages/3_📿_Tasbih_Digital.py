@@ -11,6 +11,7 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
 
 .stApp {
     background: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 100%);
@@ -23,9 +24,38 @@ st.markdown("""
     border-right: 1px solid #2d3748;
 }
 
+/* KONSISTENSI FONT SIDEBAR - BARU */
+[data-testid="stSidebarNav"] li > a {
+    font-size: 1rem; /* Ukuran font item menu sidebar */
+    font-weight: 500;
+    color: #c9d1d9; /* Warna teks normal */
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+[data-testid="stSidebarNav"] li > a:hover {
+    color: #00d4ff; /* Warna teks saat hover */
+    background-color: rgba(0, 212, 255, 0.1);
+}
+
+[data-testid="stSidebarNav"] li > a.current-selection {
+    background-color: #00aaff; /* Warna background untuk item aktif */
+    color: white; /* Warna teks untuk item aktif */
+    border-radius: 8px;
+    font-weight: 600;
+}
+[data-testid="stSidebarNav"] li > a.current-selection:hover {
+    background-color: #00d4ff;
+    color: white;
+}
+/* Akhir KONSISTENSI FONT SIDEBAR */
+
 .main-header {
     text-align: center;
     margin-bottom: 2rem;
+    padding: 2rem 1rem;
+    background: linear-gradient(135deg, rgba(0, 170, 255, 0.1) 0%, rgba(0, 212, 255, 0.05) 100%); /* Latar belakang gradasi baru */
+    border-radius: 20px;
+    border: 1px solid rgba(0, 170, 255, 0.2);
 }
 
 .main-header h1 {
@@ -34,6 +64,7 @@ st.markdown("""
     font-weight: 700;
     color: #ffffff;
     text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+    margin: 0; /* Pastikan tidak ada margin default */
 }
 
 .count-display {
@@ -61,7 +92,7 @@ st.markdown("""
 }
 
 .styled-container h3 {
-    color: #00aaff;
+    color: #00aaff; /* Warna aksen yang konsisten */
     font-family: 'Poppins', sans-serif;
     margin-top: 0;
     margin-bottom: 1.5rem;
@@ -101,6 +132,42 @@ st.markdown("""
 
 .stProgress > div > div > div > div {
     background: linear-gradient(90deg, #00aaff, #00d4ff);
+}
+
+/* Styling untuk st.number_input */
+.stNumberInput div[data-baseweb="input"] {
+    background-color: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 5px 10px;
+}
+.stNumberInput div[data-baseweb="input"] input {
+    color: #c9d1d9;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+}
+.stNumberInput div[data-baseweb="input"] button {
+    color: #00aaff !important;
+    background-color: transparent !important;
+    border: none !important;
+}
+.stNumberInput div[data-baseweb="input"] button:hover {
+    background-color: rgba(0, 170, 255, 0.1) !important;
+}
+
+
+@media (max-width: 992px) {
+    .main-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+    .schedule-grid { grid-template-columns: repeat(3, 1fr); }
+    .digital-clock { font-size: 4rem; }
+}
+@media (max-width: 576px) {
+    .schedule-grid { grid-template-columns: repeat(2, 1fr); }
+    .main-header h1 { font-size: 2.2rem; }
+    .count-display { font-size: 3rem; }
+    .stButton button { height: 60px; font-size: 1rem; }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -161,11 +228,14 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# === BAGIAN FOOTER BARU ===
+# === BAGIAN FOOTER ===
 def display_footer():
     st.markdown("---")
     st.markdown("""
-    <div style='margin-top: 1.5rem; padding: 1rem; background: rgba(0, 0, 0, 0.3); border-radius: 8px;'>
+    <div style='margin-top: 1.5rem; 
+                padding: 1rem; 
+                background: rgba(0, 0, 0, 0.3); 
+                border-radius: 8px;'>
         <p style='color: #888; font-size: 0.85rem; margin: 0; font-style: italic;'>
             "Wahai orang-orang yang beriman! Ingatlah kepada Allah dengan zikir yang sebanyak-banyaknya."<br>
             <span style='color: #00aaff;'>(QS. Al-Ahzab: 41)</span>
