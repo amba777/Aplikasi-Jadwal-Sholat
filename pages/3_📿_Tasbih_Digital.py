@@ -107,15 +107,14 @@ if st.session_state.count >= target > 0:
 st.markdown(f"<div class='count-display'>{st.session_state.count}</div>", unsafe_allow_html=True)
 
 # SECTION 3: Tombol-tombol
-st.markdown('<div class="button-container">', unsafe_allow_html=True)
-
+# Custom class untuk tombol tidak bisa langsung diterapkan di st.button,
+# jadi kita gunakan styling umum .stButton button dari CSS di atas.
 col1, col2 = st.columns(2)
 
 with col1:
     if st.button(
         "➕ Tambah (+1)", 
-        use_container_width=True,
-        key="add_button"
+        use_container_width=True
     ):
         st.session_state.count += 1
         st.rerun()
@@ -123,13 +122,10 @@ with col1:
 with col2:
     if st.button(
         "🔄 Reset (0)", 
-        use_container_width=True,
-        key="reset_button"
+        use_container_width=True
     ):
         st.session_state.count = 0
         st.rerun()
-
-st.markdown('</div>', unsafe_allow_html=True)
 
 # SECTION 4: Petunjuk Penggunaan (DI BAWAH)
 st.markdown("""
@@ -142,11 +138,31 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Footer
-st.markdown("---")
-st.markdown(
-    "<div style='text-align: center; color: #666; font-size: 14px;'>"
-    "📿 Tasbih Digital - Membantu Anda dalam berdzikir setiap hari"
-    "</div>",
-    unsafe_allow_html=True
-)
+# === BAGIAN FOOTER BARU ===
+def display_footer():
+    """Menampilkan footer aplikasi dengan ayat Quran dan copyright."""
+    st.markdown("---")
+    
+    # Ayat Al-Quran
+    st.markdown("""
+    <div style='margin-top: 1.5rem; 
+                 padding: 1rem; 
+                 background: rgba(0, 0, 0, 0.3); 
+                 border-radius: 8px;'>
+        <p style='color: #888; font-size: 0.85rem; margin: 0; font-style: italic;'>
+            "Wahai orang-orang yang beriman! Ingatlah kepada Allah dengan zikir yang sebanyak-banyaknya."<br>
+            <span style='color: #00aaff;'>(QS. Al-Ahzab: 41)</span>
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Copyright
+    st.markdown("""
+    <div style='margin-top: 1.5rem; text-align: center;'>
+        <p style='color: #666; font-size: 0.8rem; margin: 0.3rem 0;'>© 2025 Tasbih Digital</p>
+        <p style='color: #666; font-size: 0.8rem; margin: 0.3rem 0;'>Developed with ❤️ for Hamba Allah</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Panggil fungsi footer di akhir aplikasi
+display_footer()
