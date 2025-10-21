@@ -26,6 +26,32 @@ st.markdown("""
         font-family: 'Poppins', sans-serif;
     }
     
+    /* Toggle Sidebar Button */
+    .sidebar-toggle {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 9999;
+        background: linear-gradient(135deg, #00aaff, #00d4ff);
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .sidebar-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(0, 170, 255, 0.6);
+    }
+    
     /* Header dengan Gradient */
     .main-header {
         text-align: center;
@@ -215,7 +241,7 @@ st.markdown("""
         50% { opacity: 0.5; }
     }
     
-    /* Success Message */
+    /* Success Message dengan animasi fade out */
     .success-message {
         background: linear-gradient(135deg, rgba(0, 170, 255, 0.2), rgba(0, 212, 255, 0.1));
         border: 1px solid rgba(0, 170, 255, 0.4);
@@ -225,6 +251,14 @@ st.markdown("""
         font-family: 'Poppins', sans-serif;
         text-align: center;
         margin-bottom: 2rem;
+        animation: fadeOut 3s ease-in-out forwards;
+        animation-delay: 1s;
+    }
+    
+    @keyframes fadeOut {
+        0% { opacity: 1; }
+        70% { opacity: 1; }
+        100% { opacity: 0; display: none; }
     }
     
     /* Scrollbar Custom */
@@ -265,6 +299,14 @@ st.markdown("""
             padding: 1.5rem 1rem;
             margin-bottom: 1.5rem;
         }
+        
+        .sidebar-toggle {
+            top: 10px;
+            left: 10px;
+            width: 45px;
+            height: 45px;
+            font-size: 1.3rem;
+        }
     }
     
     @media (max-width: 480px) {
@@ -277,11 +319,6 @@ st.markdown("""
             line-height: 1.8;
         }
     }
-    
-    /* Hide Streamlit Elements */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -342,6 +379,36 @@ def extract_surah_info(surah_data, surah_number):
         elif 'text' in surah_data or 'name' in surah_data:
             return surah_data
     return None
+
+# --- INISIALISASI SESSION STATE ---
+
+if 'sidebar_visible' not in st.session_state:
+    st.session_state.sidebar_visible = True
+
+if 'show_success_message' not in st.session_state:
+    st.session_state.show_success_message = False
+
+if 'success_message' not in st.session_state:
+    st.session_state.success_message = ""
+
+# --- TOGGLE SIDEBAR ---
+
+# Tombol toggle sidebar
+st.markdown("""
+<button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+<script>
+function toggleSidebar() {
+    const sidebar = window.parent.document.querySelector('[data-testid="stSidebar"]');
+    if (sidebar.style.visibility === 'hidden' || sidebar.style.display === 'none') {
+        sidebar.style.visibility = 'visible';
+        sidebar.style.display = 'block';
+    } else {
+        sidebar.style.visibility = 'hidden';
+        sidebar.style.display = 'none';
+    }
+}
+</script>
+""", unsafe_allow_html=True)
 
 # --- LOGIKA UTAMA ---
 
@@ -446,11 +513,17 @@ st.markdown(f"""
 
 # Tampilkan ayat-ayat
 if text_data and translation_data:
-    st.markdown(f"""
-    <div class="success-message">
-        ✅ Berhasil memuat {len(text_data)} ayat dari Surah {surah_summary.get('name_latin', '')}
-    </div>
-    """, unsafe_allow_html=True)
+    # Set pesan sukses untuk ditampilkan
+    st.session_state.show_success_message = True
+    st.session_state.success_message = f"✅ Berhasil memuat {len(text_data)} ayat dari Surah {surah_summary.get('name_latin', '')}"
+    
+    # Tampilkan pesan sukses dengan animasi fade out
+    if st.session_state.show_success_message:
+        st.markdown(f"""
+        <div class="success-message">
+            {st.session_state.success_message}
+        </div>
+        """, unsafe_allow_html=True)
     
     for ayat_number in sorted(text_data.keys(), key=int):
         arabic_text = text_data.get(str(ayat_number), "")
