@@ -208,7 +208,7 @@ def display_footer():
     """, unsafe_allow_html=True)
 
 st.markdown('<div class="main-container">', unsafe_allow_html=True)
-st.markdown('<div class="main-header"><h1 class="header-title">🕌 Aplikasi Jadwal Sholat</h1><p class="header-subtitle">Waktu sholat terkini dengan notifikasi azan otomatis</p></div>', unsafe_allow_html=True)
+st.markdown('<div class="main-header"><h1 class="header-title">🕌 Aplikasi Jadwal Sholat</h1><p class="header-subtitle">Waktu sholat terkini</p></div>', unsafe_allow_html=True)
 
 with st.sidebar:
     st.header("📊 Informasi Aplikasi")
@@ -263,4 +263,5 @@ display_footer()
 st.markdown('</div>', unsafe_allow_html=True)
 time_module.sleep(1)
 st.rerun()
+
 
