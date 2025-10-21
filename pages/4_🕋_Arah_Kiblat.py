@@ -839,7 +839,7 @@ if calculate_button:
 
 # Informasi default
 st.markdown("""
-<div style='background: rgba(0, 170, 255, 0.1); padding: 1.5rem; border-radius: 10px; margin: 2rem 0;'>
+<div style='background: rgba(0, 170, 255, 0.1); padding: 1.5rem; border-radius: 10px; margin-bottom: 1rem;'>
     <h4 style='color: #00aaff; margin-bottom: 1rem;'>💡 Cara Menggunakan:</h4>
     <ul style='color: #ccc; margin: 0; padding-left: 20px;'>
         <li>Masukkan <strong>nama kota</strong> dari 100+ kota yang tersedia</li>
@@ -849,16 +849,26 @@ st.markdown("""
         <li>Klik <strong>"📋 Lihat 100+ Kota yang Tersedia"</strong> untuk melihat daftar lengkap</li>
         <li>Sistem akan <strong>validasi otomatis</strong> kecocokan kota dan negara</li>
     </ul>
-    
-    <h4 style='color: #ffa500; margin: 1.5rem 0 1rem 0;'>✅ Contoh Input yang Benar:</h4>
+</div>
+""", unsafe_allow_html=True)
+
+# Blok 2: Contoh Input yang Benar
+st.markdown("""
+<div style='background: rgba(0, 170, 255, 0.1); padding: 1.5rem; border-radius: 10px; margin-bottom: 1rem;'>
+    <h4 style='color: #ffa500; margin-bottom: 1rem;'>✅ Contoh Input yang Benar:</h4>
     <ul style='color: #ccc; margin: 0; padding-left: 20px;'>
         <li><strong>Kota:</strong> Madrid | <strong>Negara:</strong> Spanyol ✅</li>
         <li><strong>Kota:</strong> Tokyo | <strong>Negara:</strong> Jepang ✅</li>
         <li><strong>Kota:</strong> Jakarta | <strong>Negara:</strong> Indonesia ✅</li>
         <li><strong>Kota:</strong> New York | <strong>Negara:</strong> Amerika Serikat ✅</li>
     </ul>
-    
-    <h4 style='color: #ff6b6b; margin: 1.5rem 0 1rem 0;'>❌ Contoh Input yang Salah:</h4>
+</div>
+""", unsafe_allow_html=True)
+
+# Blok 3: Contoh Input yang Salah
+st.markdown("""
+<div style='background: rgba(0, 170, 255, 0.1); padding: 1.5rem; border-radius: 10px; margin: 2rem 0;'>
+    <h4 style='color: #ff6b6b; margin-bottom: 1rem;'>❌ Contoh Input yang Salah:</h4>
     <ul style='color: #ccc; margin: 0; padding-left: 20px;'>
         <li><strong>Kota:</strong> Madrid | <strong>Negara:</strong> Indonesia ❌ (Tidak cocok!)</li>
         <li><strong>Kota:</strong> Tokyo | <strong>Negara:</strong> China ❌ (Tidak cocok!)</li>
@@ -1015,4 +1025,5 @@ st.markdown("""
     <p style='color: #666; font-size: 0.8rem; margin: 0.3rem 0;'>Developed with ❤️ for Hamba Allah</p>
 </div>
 """, unsafe_allow_html=True)
+
 
