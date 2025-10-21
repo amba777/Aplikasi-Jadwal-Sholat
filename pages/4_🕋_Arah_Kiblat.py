@@ -1,18 +1,3 @@
-[file name]: image.png
-[file content begin]
-# Tasbih Digital
-
-## Target Dzikir
-
-- **Progress**
-  - 0.0%
-
----
-
-**https://arillipati.sichual-absoluteramanik.com/Annual-Hrants**
-
-
-[file content end]
 
 import streamlit as st
 import math
@@ -1114,3 +1099,4 @@ st.markdown("""
 
 # Close main container
 st.markdown('</div>', unsafe_allow_html=True)
+
