@@ -1,7 +1,13 @@
 import streamlit as st
 import math
 import requests
-import plotly.graph_objects as go
+
+try:
+    import plotly.graph_objects as go
+    PLOTLY_AVAILABLE = True
+except ImportError:
+    PLOTLY_AVAILABLE = False
+    st.warning("⚠️ Plotly tidak terinstall. Kompas visual tidak tersedia.")
 
 st.set_page_config(page_title="Arah Kiblat", layout="wide")
 
@@ -91,12 +97,13 @@ KAABA_LAT = 21.4225
 KAABA_LON = 39.8262
 
 def get_coordinates(city, country):
+    """Mendapatkan koordinat dari nama kota dan negara"""
     try:
         query = f'{city},{country}'
         url = f"https://nominatim.openstreetmap.org/search?q={query}&format=json"
-        headers = {'User-Agent': 'AplikasiJadwalSholat/1.0'}
+        headers = {'User-Agent': 'AplikasiArahKiblat/1.0'}
         
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
         
         data = response.json()
@@ -111,6 +118,7 @@ def get_coordinates(city, country):
         return None, None
 
 def calculate_qibla_direction(lat, lon):
+    """Menghitung arah kiblat dari koordinat yang diberikan"""
     lat_k = math.radians(KAABA_LAT)
     lon_k = math.radians(KAABA_LON)
     lat_u = math.radians(lat)
@@ -128,6 +136,10 @@ def calculate_qibla_direction(lat, lon):
     return qibla_direction
 
 def create_compass_figure(qibla_angle):
+    """Membuat visualisasi kompas dengan Plotly"""
+    if not PLOTLY_AVAILABLE:
+        return None
+    
     fig = go.Figure()
     
     # Background lingkaran kompas dengan gradient
@@ -159,7 +171,7 @@ def create_compass_figure(qibla_angle):
             theta=[angle],
             mode='text',
             text=[direction],
-            textfont=dict(size=16, color='white', weight='bold'),
+            textfont=dict(size=16, color='white', family='Arial Black'),
             showlegend=False
         ))
     
@@ -224,7 +236,7 @@ def create_compass_figure(qibla_angle):
                 direction="clockwise",
                 rotation=90,
                 tickvals=list(range(0, 360, 30)),
-                ticktext=[''] * 12,  # Sembunyikan tick default
+                ticktext=[''] * 12,
                 tickfont=dict(size=10, color='#ccc')
             ),
             bgcolor='rgba(0,0,0,0)',
@@ -312,8 +324,12 @@ if calculate_button:
             """, unsafe_allow_html=True)
             
             # Tampilkan kompas yang dipercantik
-            compass_fig = create_compass_figure(qibla)
-            st.plotly_chart(compass_fig, use_container_width=True)
+            if PLOTLY_AVAILABLE:
+                compass_fig = create_compass_figure(qibla)
+                if compass_fig:
+                    st.plotly_chart(compass_fig, use_container_width=True)
+            else:
+                st.info("📊 Install Plotly untuk menampilkan kompas visual: `pip install plotly`")
             
             # Tampilkan informasi arah
             col_deg, col_dir = st.columns(2)
@@ -325,20 +341,20 @@ if calculate_button:
                 st.caption("Arah Mata Angin")
             
             # --- Instruction Section ---
-            st.markdown("""
+            st.markdown(f"""
             <div class="instruction-box">
                 <h4 style='color: white; margin-bottom: 1rem;'>📝 Cara Menentukan Arah Kiblat:</h4>
                 <ol style='color: #ccc; margin: 0; padding-left: 1.5rem;'>
                     <li>Berdiri menghadap <strong>Utara</strong> menggunakan kompas</li>
-                    <li>Putar tubuh Anda sebesar <strong>{}°</strong> searah jarum jam</li>
-                    <li>Anda sekarang menghadap ke arah <strong>{}</strong> menuju Ka'bah</li>
+                    <li>Putar tubuh Anda sebesar <strong>{qibla:.2f}°</strong> searah jarum jam</li>
+                    <li>Anda sekarang menghadap ke arah <strong>{direction_name}</strong> menuju Ka'bah</li>
                     <li>Gunakan patokan tetap untuk mempermudah penentuan arah</li>
                 </ol>
                 <p style='color: #ffa500; margin: 1rem 0 0 0; font-weight: bold;'>
-                    🎯 Arah Kiblat Anda: <strong>{}° dari Utara</strong> menuju <strong>{}</strong>
+                    🎯 Arah Kiblat Anda: <strong>{qibla:.2f}° dari Utara</strong> menuju <strong>{direction_name}</strong>
                 </p>
             </div>
-            """.format(f"{qibla:.2f}", direction_name, f"{qibla:.2f}", direction_name), unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
             
         else:
             st.error(f"❌ Tidak dapat menemukan lokasi untuk '{city_input}, {country_input}'. Periksa kembali ejaan.")
