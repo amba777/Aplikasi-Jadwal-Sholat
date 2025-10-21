@@ -6,7 +6,7 @@ import locale
 import base64
 import os
 from pathlib import Path
-import pytz  # <-- Tambahkan import ini
+import pytz  # Library untuk zona waktu
 
 # --- LOKALISASI & KONFIGURASI ZONA WAKTU ---
 try:
@@ -14,7 +14,7 @@ try:
 except locale.Error:
     pass
 
-WIB = pytz.timezone('Asia/Jakarta') # <-- Definisikan zona waktu WIB
+WIB = pytz.timezone('Asia/Jakarta') # Definisikan zona waktu WIB
 
 hijri_months_id = {
     "Muharram": "Muharram", "Safar": "Safar", "Rabi' al-awwal": "Rabiul Awal",
@@ -40,7 +40,6 @@ if 'azan_played_today' not in st.session_state:
 if 'current_azan' not in st.session_state:
     st.session_state.current_azan = None
 if 'last_date' not in st.session_state:
-    # Menggunakan waktu WIB saat inisialisasi
     st.session_state.last_date = datetime.now(WIB).strftime("%Y-%m-%d")
 if 'last_refresh' not in st.session_state:
     st.session_state.last_refresh = datetime.now(WIB)
@@ -60,7 +59,6 @@ AZAN_FILES = {
 # --- CSS Kustom Modern & Responsif ---
 st.markdown("""
 <style>
-/* ... (Seluruh CSS Anda tetap di sini, tidak ada perubahan) ... */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&display=swap');
 .stApp { background-color: #0d1117; color: #c9d1d9; }
@@ -94,19 +92,27 @@ body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; heigh
 .file-status { padding: 15px; border-radius: 10px; margin: 10px 0; font-family: 'Poppins', sans-serif; }
 .file-found { background: rgba(46, 160, 67, 0.2); border: 1px solid #2ea043; color: #3fb950; }
 .file-not-found { background: rgba(248, 81, 73, 0.2); border: 1px solid #f85149; color: #ff7b72; }
+.feature-box { background: rgba(22, 27, 34, 0.7); border: 1px solid #30363d; border-radius: 15px; padding: 25px; margin-top: 20px; transition: all 0.3s ease; }
+.feature-box:hover { border-color: #58a6ff; }
+.feature-list { list-style-type: none; padding-left: 0; margin: 0; }
+.feature-item { display: flex; align-items: center; margin-bottom: 12px; font-size: 0.95rem; color: #c9d1d9; }
+.feature-icon { color: #3fb950; margin-right: 12px; font-size: 1.2rem; font-weight: bold; }
+.refresh-button-wrapper .stButton button { border: 1px solid #58a6ff; background-color: transparent; color: #58a6ff; transition: all 0.3s ease; border-radius: 10px; height: 50px; margin-top: 20px; }
+.refresh-button-wrapper .stButton button:hover { background-color: #58a6ff; color: white; transform: translateY(-2px); box-shadow: 0 0 15px rgba(88, 166, 255, 0.5); }
+.refresh-button-wrapper .stButton button:focus { box-shadow: 0 0 15px rgba(88, 166, 255, 0.5) !important; }
 @media (max-width: 992px) { .main-grid { grid-template-columns: 1fr; } }
 @media (max-width: 768px) { .schedule-grid { grid-template-columns: repeat(3, 1fr); } .digital-clock { font-size: 4rem; } }
 @media (max-width: 576px) { .schedule-grid { grid-template-columns: repeat(2, 1fr); } .header-title { font-size: 2.2rem; } .digital-clock { font-size: 3rem; } .next-name { font-size: 2rem; } .prayer-time { font-size: 1.5rem; } }
 </style>
 """, unsafe_allow_html=True)
 
-# --- (Sisa fungsi-fungsi Anda tetap sama, tidak perlu diubah) ---
 def get_azan_file(prayer_name):
     if prayer_name in AZAN_FILES:
         audio_path = AUDIO_DIR / AZAN_FILES[prayer_name]
         if audio_path.exists():
             return audio_path
     return None
+
 def play_azan_audio(prayer_name):
     azan_file = get_azan_file(prayer_name)
     if azan_file:
@@ -120,9 +126,11 @@ def play_azan_audio(prayer_name):
             play_azan_online()
     else:
         play_azan_online()
+
 def play_azan_online():
     azan_url = "https://www.islamcan.com/audio/adhan/azan1.mp3"
     st.markdown(f'<audio autoplay><source src="{azan_url}" type="audio/mpeg"></audio>', unsafe_allow_html=True)
+
 def check_audio_files():
     status = {}
     for prayer_name, audio_file in AZAN_FILES.items():
@@ -131,7 +139,7 @@ def check_audio_files():
     return status
 
 def check_azan_time(prayer_times_dict):
-    sekarang = datetime.now(WIB) # <-- Gunakan WIB
+    sekarang = datetime.now(WIB)
     waktu_sekarang_str = sekarang.strftime("%H:%M")
     tanggal_sekarang = sekarang.strftime("%Y-%m-%d")
 
@@ -190,7 +198,7 @@ def get_prayer_times(lat, lon, date_str):
         return None
 
 def find_next_prayer(prayer_times_dict):
-    sekarang = datetime.now(WIB) # <-- Gunakan WIB
+    sekarang = datetime.now(WIB)
     urutan_sholat = [("fajr", "Subuh"), ("dhuhr", "Dzuhur"), ("asr", "Ashar"), ("maghrib", "Maghrib"), ("isha", "Isya")]
     
     if not prayer_times_dict: 
@@ -264,7 +272,7 @@ with st.sidebar:
             st.write(f"{icon} **{sholat}**: {'Sudah' if status else 'Belum'} diputar")
 
 lat, lon = 3.5952, 98.6722
-hari_ini_str = datetime.now(WIB).strftime("%d-%m-%Y") # <-- Gunakan WIB
+hari_ini_str = datetime.now(WIB).strftime("%d-%m-%Y")
 data_sholat = get_prayer_times(lat, lon, hari_ini_str)
 
 if data_sholat:
@@ -273,7 +281,7 @@ if data_sholat:
         st.markdown(f'<div class="azan-notification">🕌 WAKTU SHOLAT {st.session_state.current_azan.upper()} 🕌</div>', unsafe_allow_html=True)
         play_azan_audio(st.session_state.current_azan)
     
-    waktu_sekarang = datetime.now(WIB) # <-- Gunakan WIB
+    waktu_sekarang = datetime.now(WIB)
     format_waktu = waktu_sekarang.strftime("%H<span class='clock-separator'>:</span>%M<span class='clock-separator'>:</span>%S")
     nama_sholat_berikutnya, waktu_sholat_berikutnya, hitung_mundur = find_next_prayer(data_sholat)
     
@@ -303,12 +311,25 @@ if data_sholat:
             st.markdown(f'<div class="prayer-card"><div class="prayer-icon">{ikon}</div><div class="prayer-name">{nama}</div><div class="prayer-time">{waktu}</div></div>', unsafe_allow_html=True)
     
     st.markdown("---")
+    st.markdown('<div class="feature-box">', unsafe_allow_html=True)
     col1, col2 = st.columns([3, 1])
     with col1:
-        st.info("Fitur Aplikasi:\n\n- ✅ Jadwal sholat otomatis untuk Kota Medan\n- ✅ Notifikasi azan tepat waktu\n- ✅ Audio azan berbeda untuk Subuh\n- ✅ Kalender Hijriyah & Masehi\n- ✅ Auto-refresh")
+        st.markdown("""
+        <h4 style="font-family: 'Poppins', sans-serif; color: #fafafa; margin-top: 0; margin-bottom: 15px;">Fitur Aplikasi</h4>
+        <ul class="feature-list">
+            <li class="feature-item"><span class="feature-icon">✓</span> Jadwal sholat otomatis untuk Kota Medan</li>
+            <li class="feature-item"><span class="feature-icon">✓</span> Notifikasi azan tepat waktu</li>
+            <li class="feature-item"><span class="feature-icon">✓</span> Audio azan berbeda untuk Subuh</li>
+            <li class="feature-item"><span class="feature-icon">✓</span> Kalender Hijriyah & Masehi</li>
+            <li class="feature-item"><span class="feature-icon">✓</span> Auto-refresh</li>
+        </ul>
+        """, unsafe_allow_html=True)
     with col2:
+        st.markdown('<div class="refresh-button-wrapper">', unsafe_allow_html=True)
         if st.button("🔄 Refresh Data", use_container_width=True):
             st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 else:
     st.error("❌ Gagal mengambil data jadwal sholat. Periksa koneksi internet Anda.")
@@ -316,6 +337,5 @@ else:
 display_footer()
 st.markdown('</div>', unsafe_allow_html=True)
 
-# Auto-refresh logic
 time_module.sleep(1)
 st.rerun()
