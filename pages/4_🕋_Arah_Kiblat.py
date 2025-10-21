@@ -347,92 +347,181 @@ def calculate_qibla_direction(lat, lon):
     return qibla_direction
 
 def create_compass_figure(qibla_angle):
-    """Membuat visualisasi kompas dengan Plotly"""
+    """Membuat visualisasi kompas modern dan profesional dengan Plotly"""
     if not PLOTLY_AVAILABLE:
         return None
     
     fig = go.Figure()
     
-    # Background lingkaran kompas
+    # Background gradient lingkaran luar
+    fig.add_trace(go.Scatterpolar(
+        r=[1.15] * 360,
+        theta=list(range(360)),
+        mode='none',
+        fill='toself',
+        fillcolor='rgba(20, 25, 45, 0.95)',
+        line=dict(color='rgba(0, 170, 255, 0.4)', width=3),
+        showlegend=False
+    ))
+    
+    # Lingkaran dalam dengan gradient
     fig.add_trace(go.Scatterpolar(
         r=[1] * 360,
         theta=list(range(360)),
         mode='none',
         fill='toself',
-        fillcolor='rgba(30, 58, 138, 0.8)',
-        line=dict(color='rgba(255,255,255,0.3)', width=2),
+        fillcolor='rgba(25, 35, 65, 0.9)',
+        line=dict(color='rgba(0, 170, 255, 0.6)', width=2),
         showlegend=False
     ))
     
-    # Garis arah utama
-    for angle, color in [(0, '#ff6b6b'), (90, '#4ecdc4'), (180, '#ffa500'), (270, '#cc65fe')]:
+    # Grid circles untuk depth
+    for radius in [0.3, 0.6, 0.9]:
+        theta_circle = list(range(361))
         fig.add_trace(go.Scatterpolar(
-            r=[0, 0.9],
+            r=[radius] * 361,
+            theta=theta_circle,
+            mode='lines',
+            line=dict(color='rgba(255,255,255,0.1)', width=1),
+            showlegend=False
+        ))
+    
+    # Garis arah utama dengan warna modern
+    directions_colors = [
+        (0, '#FF4444', 'UTARA'),      # Merah terang untuk Utara
+        (90, '#00D9FF', 'TIMUR'),     # Cyan untuk Timur
+        (180, '#FFB800', 'SELATAN'),  # Orange untuk Selatan  
+        (270, '#BB86FC', 'BARAT')     # Purple untuk Barat
+    ]
+    
+    for angle, color, label in directions_colors:
+        # Garis utama
+        fig.add_trace(go.Scatterpolar(
+            r=[0, 1],
             theta=[angle, angle],
             mode='lines',
-            line=dict(color=color, width=3, dash='dash'),
+            line=dict(color=color, width=2.5),
+            showlegend=False
+        ))
+        
+        # Titik di ujung garis
+        fig.add_trace(go.Scatterpolar(
+            r=[1.02],
+            theta=[angle],
+            mode='markers',
+            marker=dict(size=8, color=color, line=dict(color='white', width=1)),
             showlegend=False
         ))
     
-    # Label arah utama
-    directions = ['UTARA', 'TIMUR', 'SELATAN', 'BARAT']
-    for i, (angle, direction) in enumerate(zip([0, 90, 180, 270], directions)):
+    # Label arah dengan styling modern
+    for angle, color, label in directions_colors:
         fig.add_trace(go.Scatterpolar(
-            r=[1.1],
+            r=[1.25],
             theta=[angle],
             mode='text',
-            text=[direction],
-            textfont=dict(size=16, color='white', family='Arial Black'),
+            text=[f'<b>{label}</b>'],
+            textfont=dict(size=14, color=color, family='Arial Black'),
             showlegend=False
         ))
     
-    # Jarum arah kiblat
+    # Jarum kiblat dengan efek 3D
+    arrow_angles = [qibla_angle-8, qibla_angle, qibla_angle+8, qibla_angle]
+    arrow_r = [0, 0.75, 0, 0]
+    
+    # Shadow jarum
     fig.add_trace(go.Scatterpolar(
-        r=[0, 0.85, 0.85, 0],
-        theta=[qibla_angle, qibla_angle-10, qibla_angle+10, qibla_angle],
-        mode='lines+markers',
+        r=[r + 0.02 for r in arrow_r],
+        theta=[a + 2 for a in arrow_angles],
+        mode='lines',
         fill='toself',
-        fillcolor='rgba(0, 170, 255, 0.8)',
-        line=dict(color='#00aaff', width=3),
-        marker=dict(size=0),
-        name='Arah Kiblat'
+        fillcolor='rgba(0, 0, 0, 0.3)',
+        line=dict(color='rgba(0, 0, 0, 0)', width=0),
+        showlegend=False
     ))
     
-    # Lingkaran tengah
+    # Jarum utama dengan gradient
     fig.add_trace(go.Scatterpolar(
-        r=[0.1],
+        r=arrow_r,
+        theta=arrow_angles,
+        mode='lines',
+        fill='toself',
+        fillcolor='rgba(0, 255, 136, 0.85)',
+        line=dict(color='#00FF88', width=3),
+        showlegend=False
+    ))
+    
+    # Outline jarum
+    fig.add_trace(go.Scatterpolar(
+        r=arrow_r,
+        theta=arrow_angles,
+        mode='lines',
+        line=dict(color='rgba(255, 255, 255, 0.8)', width=1.5),
+        showlegend=False
+    ))
+    
+    # Lingkaran tengah dengan efek glow
+    for size, alpha in [(30, 0.3), (25, 0.5), (20, 0.8)]:
+        fig.add_trace(go.Scatterpolar(
+            r=[0.05],
+            theta=[0],
+            mode='markers',
+            marker=dict(size=size, color=f'rgba(0, 255, 136, {alpha})', 
+                       line=dict(color='white', width=0)),
+            showlegend=False
+        ))
+    
+    # Lingkaran tengah inti
+    fig.add_trace(go.Scatterpolar(
+        r=[0.05],
         theta=[0],
         mode='markers',
-        marker=dict(size=20, color='white', line=dict(color='#00aaff', width=3)),
+        marker=dict(size=15, color='white', 
+                   line=dict(color='#00FF88', width=3)),
         showlegend=False
     ))
     
-    # Label KIBLAT di ujung jarum
+    # Icon kiblat di ujung jarum dengan background
     fig.add_trace(go.Scatterpolar(
-        r=[0.95],
+        r=[0.85],
         theta=[qibla_angle],
-        mode='text',
+        mode='markers+text',
+        marker=dict(size=35, color='rgba(0, 255, 136, 0.2)', 
+                   line=dict(color='#00FF88', width=2)),
         text=['🕋'],
-        textfont=dict(size=20),
+        textfont=dict(size=18),
         showlegend=False
     ))
+    
+    # Derajat markers setiap 30 derajat
+    for angle in range(0, 360, 30):
+        if angle not in [0, 90, 180, 270]:  # Skip arah utama
+            fig.add_trace(go.Scatterpolar(
+                r=[0.95],
+                theta=[angle],
+                mode='markers',
+                marker=dict(size=4, color='rgba(255,255,255,0.5)'),
+                showlegend=False
+            ))
     
     fig.update_layout(
         polar=dict(
-            radialaxis=dict(visible=False, range=[0, 1.2]),
+            radialaxis=dict(visible=False, range=[0, 1.35]),
             angularaxis=dict(
                 direction="clockwise",
                 rotation=90,
                 tickvals=[],
                 ticktext=[],
+                showline=False,
+                showgrid=False,
             ),
             bgcolor='rgba(0,0,0,0)',
         ),
         showlegend=False,
-        height=500,
-        margin=dict(l=20, r=20, t=20, b=20),
+        height=550,
+        margin=dict(l=30, r=30, t=30, b=30),
         paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)'
+        plot_bgcolor='rgba(0,0,0,0)',
+        font=dict(family='Arial, sans-serif')
     )
     
     return fig
@@ -740,8 +829,14 @@ if calculate_button:
             </div>
             """, unsafe_allow_html=True)
             
-            # Informasi tambahan
-            st.success(f"✅ Berhasil menghitung arah kiblat untuk {city_input.title()}, {country_input.title()}!")
+            # Informasi tambahan dengan notifikasi auto-hide
+            success_placeholder = st.empty()
+            with success_placeholder.container():
+                st.success(f"✅ Berhasil menghitung arah kiblat untuk {city_input.title()}, {country_input.title()}!")
+            
+            # Auto-hide setelah 4 detik
+            time.sleep(4)
+            success_placeholder.empty()
 
 # Informasi default
 else:
@@ -810,14 +905,96 @@ else:
     </div>
     """, unsafe_allow_html=True)
 
-# Footer
+# Footer modern dan profesional
 st.markdown("---")
-st.markdown(
-    "<div style='text-align: center; color: #666; font-size: 14px;'>"
-    "🕋 Arah Kiblat - Membantu Anda menemukan arah sholat yang tepat<br>"
-    "📍 Koordinat Ka'bah: 21.4225°N, 39.8262°E<br>"
-    "🌍 Mendukung 105 kota dari 6 benua dengan validasi otomatis kota-negara<br>"
-    "✅ Sistem validasi memastikan kota dan negara sesuai"
-    "</div>",
-    unsafe_allow_html=True
-)
+st.markdown("""
+<div style='background: linear-gradient(135deg, rgba(0, 170, 255, 0.1), rgba(255, 165, 0, 0.1)); 
+            padding: 2rem; 
+            border-radius: 15px; 
+            margin: 2rem 0;
+            border: 1px solid rgba(0, 170, 255, 0.3);'>
+    <div style='text-align: center;'>
+        <h3 style='color: #00aaff; margin-bottom: 1.5rem; font-size: 1.5rem;'>
+            🕋 Arah Kiblat - Penunjuk Arah Sholat Digital
+        </h3>
+        
+        <div style='display: grid; 
+                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+                    gap: 1.5rem; 
+                    margin: 1.5rem 0;'>
+            
+            <div style='background: rgba(0, 170, 255, 0.1); 
+                        padding: 1.2rem; 
+                        border-radius: 10px; 
+                        border-left: 4px solid #00aaff;'>
+                <div style='font-size: 1.8rem; margin-bottom: 0.5rem;'>📍</div>
+                <div style='color: #00aaff; font-weight: bold; margin-bottom: 0.3rem;'>Koordinat Ka'bah</div>
+                <div style='color: #ccc; font-size: 0.9rem;'>21.4225°N, 39.8262°E</div>
+                <div style='color: #999; font-size: 0.85rem; margin-top: 0.3rem;'>Makkah Al-Mukarramah</div>
+            </div>
+            
+            <div style='background: rgba(0, 255, 136, 0.1); 
+                        padding: 1.2rem; 
+                        border-radius: 10px; 
+                        border-left: 4px solid #00FF88;'>
+                <div style='font-size: 1.8rem; margin-bottom: 0.5rem;'>🌍</div>
+                <div style='color: #00FF88; font-weight: bold; margin-bottom: 0.3rem;'>Cakupan Global</div>
+                <div style='color: #ccc; font-size: 0.9rem;'>105 Kota Utama</div>
+                <div style='color: #999; font-size: 0.85rem; margin-top: 0.3rem;'>6 Benua Tersedia</div>
+            </div>
+            
+            <div style='background: rgba(255, 165, 0, 0.1); 
+                        padding: 1.2rem; 
+                        border-radius: 10px; 
+                        border-left: 4px solid #ffa500;'>
+                <div style='font-size: 1.8rem; margin-bottom: 0.5rem;'>✅</div>
+                <div style='color: #ffa500; font-weight: bold; margin-bottom: 0.3rem;'>Validasi Otomatis</div>
+                <div style='color: #ccc; font-size: 0.9rem;'>Sistem Verifikasi</div>
+                <div style='color: #999; font-size: 0.85rem; margin-top: 0.3rem;'>Kota & Negara Akurat</div>
+            </div>
+            
+            <div style='background: rgba(187, 134, 252, 0.1); 
+                        padding: 1.2rem; 
+                        border-radius: 10px; 
+                        border-left: 4px solid #BB86FC;'>
+                <div style='font-size: 1.8rem; margin-bottom: 0.5rem;'>🧭</div>
+                <div style='color: #BB86FC; font-weight: bold; margin-bottom: 0.3rem;'>Kompas Visual</div>
+                <div style='color: #ccc; font-size: 0.9rem;'>Modern & Interaktif</div>
+                <div style='color: #999; font-size: 0.85rem; margin-top: 0.3rem;'>Akurasi Tinggi</div>
+            </div>
+            
+        </div>
+        
+        <div style='margin-top: 2rem; 
+                    padding-top: 1.5rem; 
+                    border-top: 1px solid rgba(255,255,255,0.1);'>
+            <div style='color: #999; font-size: 0.95rem; line-height: 1.8;'>
+                <p style='margin: 0.5rem 0;'>
+                    <span style='color: #00aaff;'>🌐</span> Mendukung ejaan <strong>Indonesia</strong> & <strong>Inggris</strong>
+                </p>
+                <p style='margin: 0.5rem 0;'>
+                    <span style='color: #00FF88;'>💡</span> Perhitungan menggunakan <strong>Formula Haversine</strong> untuk akurasi maksimal
+                </p>
+                <p style='margin: 0.5rem 0;'>
+                    <span style='color: #ffa500;'>⚡</span> Database lokal untuk <strong>respon instan</strong> tanpa koneksi internet
+                </p>
+            </div>
+        </div>
+        
+        <div style='margin-top: 1.5rem; 
+                    padding: 1rem; 
+                    background: rgba(0, 0, 0, 0.3); 
+                    border-radius: 8px;'>
+            <p style='color: #888; font-size: 0.85rem; margin: 0; font-style: italic;'>
+                "Sesungguhnya kami melihat mukamu menengadah ke langit, maka benar-benar akan Kami palingkan engkau ke kiblat yang engkau senangi."<br>
+                <span style='color: #00aaff;'>(QS. Al-Baqarah: 144)</span>
+            </p>
+        </div>
+        
+        <div style='margin-top: 1.5rem; color: #666; font-size: 0.8rem;'>
+            <p style='margin: 0.3rem 0;'>© 2025 Aplikasi Arah Kiblat Digital</p>
+            <p style='margin: 0.3rem 0;'>Developed with ❤️ for Muslim Community Worldwide</p>
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
