@@ -1,6 +1,8 @@
 import streamlit as st
 import math
 import requests
+from urllib.parse import quote
+import time
 
 try:
     import plotly.graph_objects as go
@@ -95,111 +97,236 @@ st.markdown("""
 KAABA_LAT = 21.4225
 KAABA_LON = 39.8262
 
-# Database koordinat kota-kota populer (fallback jika API tidak bekerja)
-CITY_COORDINATES = {
-    # Indonesia
-    'jakarta': (-6.2088, 106.8456),
-    'surabaya': (-7.2575, 112.7521),
-    'bandung': (-6.9175, 107.6191),
-    'medan': (3.5952, 98.6722),
-    'makassar': (-5.1477, 119.4327),
-    'semarang': (-6.9667, 110.4167),
-    'yogyakarta': (-7.7956, 110.3695),
-    'denpasar': (-8.6705, 115.2126),
-    'palembang': (-2.9910, 104.7574),
-    'batam': (1.0456, 104.0305),
+# Database lengkap kota dan negara (100 kota dari seluruh dunia)
+CITY_DATABASE = {
+    # ASIA - 35 kota
+    'jakarta': {'country': 'indonesia', 'lat': -6.2088, 'lon': 106.8456},
+    'surabaya': {'country': 'indonesia', 'lat': -7.2575, 'lon': 112.7521},
+    'bandung': {'country': 'indonesia', 'lat': -6.9175, 'lon': 107.6191},
+    'medan': {'country': 'indonesia', 'lat': 3.5952, 'lon': 98.6722},
+    'semarang': {'country': 'indonesia', 'lat': -6.9667, 'lon': 110.4167},
+    'makassar': {'country': 'indonesia', 'lat': -5.1477, 'lon': 119.4327},
+    'palembang': {'country': 'indonesia', 'lat': -2.9761, 'lon': 104.7754},
+    'kuala lumpur': {'country': 'malaysia', 'lat': 3.1390, 'lon': 101.6869},
+    'penang': {'country': 'malaysia', 'lat': 5.4164, 'lon': 100.3327},
+    'johor bahru': {'country': 'malaysia', 'lat': 1.4927, 'lon': 103.7414},
+    'singapore': {'country': 'singapura', 'lat': 1.3521, 'lon': 103.8198},
+    'bangkok': {'country': 'thailand', 'lat': 13.7563, 'lon': 100.5018},
+    'phuket': {'country': 'thailand', 'lat': 7.8804, 'lon': 98.3923},
+    'chiang mai': {'country': 'thailand', 'lat': 18.7883, 'lon': 98.9853},
+    'hanoi': {'country': 'vietnam', 'lat': 21.0285, 'lon': 105.8542},
+    'ho chi minh': {'country': 'vietnam', 'lat': 10.8231, 'lon': 106.6297},
+    'manila': {'country': 'filipina', 'lat': 14.5995, 'lon': 120.9842},
+    'tokyo': {'country': 'jepang', 'lat': 35.6762, 'lon': 139.6503},
+    'osaka': {'country': 'jepang', 'lat': 34.6937, 'lon': 135.5023},
+    'kyoto': {'country': 'jepang', 'lat': 35.0116, 'lon': 135.7681},
+    'seoul': {'country': 'korea selatan', 'lat': 37.5665, 'lon': 126.9780},
+    'busan': {'country': 'korea selatan', 'lat': 35.1796, 'lon': 129.0756},
+    'beijing': {'country': 'china', 'lat': 39.9042, 'lon': 116.4074},
+    'shanghai': {'country': 'china', 'lat': 31.2304, 'lon': 121.4737},
+    'hong kong': {'country': 'hong kong', 'lat': 22.3193, 'lon': 114.1694},
+    'taipei': {'country': 'taiwan', 'lat': 25.0330, 'lon': 121.5654},
+    'mumbai': {'country': 'india', 'lat': 19.0760, 'lon': 72.8777},
+    'delhi': {'country': 'india', 'lat': 28.7041, 'lon': 77.1025},
+    'bangalore': {'country': 'india', 'lat': 12.9716, 'lon': 77.5946},
+    'karachi': {'country': 'pakistan', 'lat': 24.8607, 'lon': 67.0011},
+    'dhaka': {'country': 'bangladesh', 'lat': 23.8103, 'lon': 90.4125},
+    'colombo': {'country': 'sri lanka', 'lat': 6.9271, 'lon': 79.8612},
+    'kathmandu': {'country': 'nepal', 'lat': 27.7172, 'lon': 85.3240},
+    'tehran': {'country': 'iran', 'lat': 35.6892, 'lon': 51.3890},
+    'baghdad': {'country': 'irak', 'lat': 33.3152, 'lon': 44.3661},
     
-    # Internasional
-    'tokyo': (35.6762, 139.6503),
-    'osaka': (34.6937, 135.5023),
-    'kyoto': (35.0116, 135.7681),
-    'moscow': (55.7558, 37.6173),
-    'moskow': (55.7558, 37.6173),
-    'london': (51.5074, -0.1278),
-    'paris': (48.8566, 2.3522),
-    'berlin': (52.5200, 13.4050),
-    'rome': (41.9028, 12.4964),
-    'madrid': (40.4168, -3.7038),
-    'new york': (40.7128, -74.0060),
-    'los angeles': (34.0522, -118.2437),
-    'chicago': (41.8781, -87.6298),
-    'toronto': (43.6532, -79.3832),
-    'sydney': (-33.8688, 151.2093),
-    'melbourne': (-37.8136, 144.9631),
-    'dubai': (25.2048, 55.2708),
-    'riyadh': (24.7136, 46.6753),
-    'cairo': (30.0444, 31.2357),
-    'istanbul': (41.0082, 28.9784),
-    'seoul': (37.5665, 126.9780),
-    'beijing': (39.9042, 116.4074),
-    'shanghai': (31.2304, 121.4737),
-    'bangkok': (13.7563, 100.5018),
-    'kuala lumpur': (3.1390, 101.6869),
-    'singapore': (1.3521, 103.8198),
-    'manila': (14.5995, 120.9842),
-    'hanoi': (21.0278, 105.8342),
-    'ho chi minh': (10.8231, 106.6297),
-    'mumbai': (19.0760, 72.8777),
-    'delhi': (28.7041, 77.1025),
-    'dhaka': (23.8103, 90.4125),
-    'karachi': (24.8607, 67.0011),
-    'tehran': (35.6892, 51.3890),
-    'baghdad': (33.3152, 44.3661),
-    'jeddah': (21.4858, 39.1925),
-    'mecca': (21.4225, 39.8262),
-    'medina': (24.5247, 39.5692),
+    # TIMUR TENGAH - 15 kota
+    'riyadh': {'country': 'arab saudi', 'lat': 24.7136, 'lon': 46.6753},
+    'jeddah': {'country': 'arab saudi', 'lat': 21.5433, 'lon': 39.1728},
+    'makkah': {'country': 'arab saudi', 'lat': 21.4225, 'lon': 39.8262},
+    'dubai': {'country': 'uni emirat arab', 'lat': 25.2048, 'lon': 55.2708},
+    'abu dhabi': {'country': 'uni emirat arab', 'lat': 24.4539, 'lon': 54.3773},
+    'doha': {'country': 'qatar', 'lat': 25.2854, 'lon': 51.5310},
+    'kuwait city': {'country': 'kuwait', 'lat': 29.3759, 'lon': 47.9774},
+    'muscat': {'country': 'oman', 'lat': 23.5880, 'lon': 58.3829},
+    'manama': {'country': 'bahrain', 'lat': 26.0667, 'lon': 50.5577},
+    'amman': {'country': 'yordania', 'lat': 31.9454, 'lon': 35.9284},
+    'beirut': {'country': 'lebanon', 'lat': 33.8886, 'lon': 35.4955},
+    'damascus': {'country': 'suriah', 'lat': 33.5138, 'lon': 36.2765},
+    'jerusalem': {'country': 'israel', 'lat': 31.7683, 'lon': 35.2137},
+    'ankara': {'country': 'turki', 'lat': 39.9334, 'lon': 32.8597},
+    'istanbul': {'country': 'turki', 'lat': 41.0082, 'lon': 28.9784},
+    
+    # EROPA - 25 kota
+    'moscow': {'country': 'rusia', 'lat': 55.7558, 'lon': 37.6173},
+    'saint petersburg': {'country': 'rusia', 'lat': 59.9311, 'lon': 30.3609},
+    'kyiv': {'country': 'ukraina', 'lat': 50.4501, 'lon': 30.5234},
+    'warsaw': {'country': 'polandia', 'lat': 52.2297, 'lon': 21.0122},
+    'berlin': {'country': 'jerman', 'lat': 52.5200, 'lon': 13.4050},
+    'munich': {'country': 'jerman', 'lat': 48.1351, 'lon': 11.5820},
+    'hamburg': {'country': 'jerman', 'lat': 53.5511, 'lon': 9.9937},
+    'paris': {'country': 'perancis', 'lat': 33.8886, 'lon': 35.4955},
+    'marseille': {'country': 'perancis', 'lat': 43.2965, 'lon': 5.3698},
+    'lyon': {'country': 'perancis', 'lat': 45.7640, 'lon': 4.8357},
+    'rome': {'country': 'italia', 'lat': 41.9028, 'lon': 12.4964},
+    'milan': {'country': 'italia', 'lat': 45.4642, 'lon': 9.1900},
+    'naples': {'country': 'italia', 'lat': 40.8518, 'lon': 14.2681},
+    'madrid': {'country': 'spanyol', 'lat': 40.4168, 'lon': -3.7038},
+    'barcelona': {'country': 'spanyol', 'lat': 41.3851, 'lon': 2.1734},
+    'valencia': {'country': 'spanyol', 'lat': 39.4699, 'lon': -0.3763},
+    'lisbon': {'country': 'portugal', 'lat': 38.7223, 'lon': -9.1393},
+    'london': {'country': 'inggris', 'lat': 51.5074, 'lon': -0.1278},
+    'manchester': {'country': 'inggris', 'lat': 53.4808, 'lon': -2.2426},
+    'dublin': {'country': 'irlandia', 'lat': 53.3498, 'lon': -6.2603},
+    'amsterdam': {'country': 'belanda', 'lat': 52.3676, 'lon': 4.9041},
+    'brussels': {'country': 'belgia', 'lat': 50.8503, 'lon': 4.3517},
+    'zurich': {'country': 'swiss', 'lat': 47.3769, 'lon': 8.5417},
+    'vienna': {'country': 'austria', 'lat': 48.2082, 'lon': 16.3738},
+    'stockholm': {'country': 'swedia', 'lat': 59.3293, 'lon': 18.0686},
+    
+    # AMERIKA - 15 kota
+    'new york': {'country': 'amerika serikat', 'lat': 40.7128, 'lon': -74.0060},
+    'los angeles': {'country': 'amerika serikat', 'lat': 34.0522, 'lon': -118.2437},
+    'chicago': {'country': 'amerika serikat', 'lat': 41.8781, 'lon': -87.6298},
+    'houston': {'country': 'amerika serikat', 'lat': 29.7604, 'lon': -95.3698},
+    'miami': {'country': 'amerika serikat', 'lat': 25.7617, 'lon': -80.1918},
+    'toronto': {'country': 'kanada', 'lat': 43.6532, 'lon': -79.3832},
+    'vancouver': {'country': 'kanada', 'lat': 49.2827, 'lon': -123.1207},
+    'montreal': {'country': 'kanada', 'lat': 45.5017, 'lon': -73.5673},
+    'mexico city': {'country': 'meksiko', 'lat': 19.4326, 'lon': -99.1332},
+    'sao paulo': {'country': 'brazil', 'lat': -23.5505, 'lon': -46.6333},
+    'rio de janeiro': {'country': 'brazil', 'lat': -22.9068, 'lon': -43.1729},
+    'buenos aires': {'country': 'argentina', 'lat': -34.6037, 'lon': -58.3816},
+    'santiago': {'country': 'chile', 'lat': -33.4489, 'lon': -70.6693},
+    'lima': {'country': 'peru', 'lat': -12.0464, 'lon': -77.0428},
+    'bogota': {'country': 'kolombia', 'lat': 4.7110, 'lon': -74.0721},
+    
+    # AFRIKA - 10 kota
+    'cairo': {'country': 'mesir', 'lat': 30.0444, 'lon': 31.2357},
+    'lagos': {'country': 'nigeria', 'lat': 6.5244, 'lon': 3.3792},
+    'nairobi': {'country': 'kenya', 'lat': -1.2864, 'lon': 36.8172},
+    'addis ababa': {'country': 'ethiopia', 'lat': 9.0320, 'lon': 38.7469},
+    'johannesburg': {'country': 'afrika selatan', 'lat': -26.2041, 'lon': 28.0473},
+    'cape town': {'country': 'afrika selatan', 'lat': -33.9249, 'lon': 18.4241},
+    'casablanca': {'country': 'maroko', 'lat': 33.5731, 'lon': -7.5898},
+    'algiers': {'country': 'aljazair', 'lat': 36.7538, 'lon': 3.0588},
+    'tunis': {'country': 'tunisia', 'lat': 36.8065, 'lon': 10.1815},
+    'accra': {'country': 'ghana', 'lat': 5.6037, 'lon': -0.1870},
+    
+    # OSEANIA - 5 kota
+    'sydney': {'country': 'australia', 'lat': -33.8688, 'lon': 151.2093},
+    'melbourne': {'country': 'australia', 'lat': -37.8136, 'lon': 144.9631},
+    'brisbane': {'country': 'australia', 'lat': -27.4698, 'lon': 153.0251},
+    'auckland': {'country': 'selandia baru', 'lat': -36.8485, 'lon': 174.7633},
+    'wellington': {'country': 'selandia baru', 'lat': -41.2865, 'lon': 174.7762},
+}
+
+# Mapping negara dengan variasi ejaan
+COUNTRY_MAPPING = {
+    'indonesia': ['indonesia', 'republik indonesia'],
+    'malaysia': ['malaysia'],
+    'singapura': ['singapura', 'singapore', 'republik singapura'],
+    'thailand': ['thailand', 'thai'],
+    'vietnam': ['vietnam', 'viet nam'],
+    'filipina': ['filipina', 'philippines', 'pilipinas'],
+    'jepang': ['jepang', 'japan', 'nippon'],
+    'korea selatan': ['korea selatan', 'south korea', 'korea', 'republik korea'],
+    'china': ['china', 'cina', 'tiongkok', 'republik rakyat china'],
+    'hong kong': ['hong kong', 'hongkong'],
+    'taiwan': ['taiwan', 'republik china'],
+    'india': ['india', 'republik india'],
+    'pakistan': ['pakistan'],
+    'bangladesh': ['bangladesh'],
+    'sri lanka': ['sri lanka'],
+    'nepal': ['nepal'],
+    'iran': ['iran', 'republik islam iran'],
+    'irak': ['irak', 'iraq', 'republik irak'],
+    'arab saudi': ['arab saudi', 'saudi arabia', 'saudi', 'kerajaan arab saudi'],
+    'uni emirat arab': ['uni emirat arab', 'united arab emirates', 'uae', 'emirat arab'],
+    'qatar': ['qatar'],
+    'kuwait': ['kuwait'],
+    'oman': ['oman', 'kesultanan oman'],
+    'bahrain': ['bahrain'],
+    'yordania': ['yordania', 'jordan', 'kerajaan yordania'],
+    'lebanon': ['lebanon'],
+    'suriah': ['suriah', 'syria', 'republik arab suriah'],
+    'israel': ['israel'],
+    'turki': ['turki', 'turkey', 'türkiye', 'republik turki'],
+    'rusia': ['rusia', 'russia', 'russian federation', 'federasi rusia'],
+    'ukraina': ['ukraina', 'ukraine'],
+    'polandia': ['polandia', 'poland', 'republik polandia'],
+    'jerman': ['jerman', 'germany', 'deutschland', 'republik federal jerman'],
+    'perancis': ['perancis', 'france', 'prancis', 'republik perancis'],
+    'italia': ['italia', 'italy', 'republik italia'],
+    'spanyol': ['spanyol', 'spain', 'españa', 'kerajaan spanyol'],
+    'portugal': ['portugal', 'republik portugal'],
+    'inggris': ['inggris', 'united kingdom', 'uk', 'britania raya', 'england', 'british'],
+    'irlandia': ['irlandia', 'ireland', 'republik irlandia'],
+    'belanda': ['belanda', 'netherlands', 'nederland', 'kerajaan belanda'],
+    'belgia': ['belgia', 'belgium', 'belgique', 'kerajaan belgia'],
+    'swiss': ['swiss', 'switzerland', 'schweiz', 'konfederasi swiss'],
+    'austria': ['austria', 'republik austria'],
+    'swedia': ['swedia', 'sweden', 'sverige', 'kerajaan swedia'],
+    'amerika serikat': ['amerika serikat', 'united states', 'usa', 'us', 'amerika'],
+    'kanada': ['kanada', 'canada'],
+    'meksiko': ['meksiko', 'mexico', 'estados unidos mexicanos'],
+    'brazil': ['brazil', 'brasil', 'republik federal brasil'],
+    'argentina': ['argentina', 'republik argentina'],
+    'chile': ['chile', 'republik chile'],
+    'kolombia': ['kolombia', 'colombia', 'republik kolombia'],
+    'peru': ['peru', 'republik peru'],
+    'mesir': ['mesir', 'egypt', 'republik arab mesir'],
+    'nigeria': ['nigeria', 'republik federal nigeria'],
+    'kenya': ['kenya', 'republik kenya'],
+    'ethiopia': ['ethiopia'],
+    'afrika selatan': ['afrika selatan', 'south africa', 'republik afrika selatan'],
+    'maroko': ['maroko', 'morocco', 'kerajaan maroko'],
+    'aljazair': ['aljazair', 'algeria', 'republik demokratik rakyat aljazair'],
+    'tunisia': ['tunisia', 'republik tunisia'],
+    'ghana': ['ghana', 'republik ghana'],
+    'australia': ['australia', 'commonwealth of australia'],
+    'selandia baru': ['selandia baru', 'new zealand', 'aotearoa'],
 }
 
 def normalize_input(text):
     """Normalisasi input menjadi lowercase dan hapus spasi berlebih"""
     return ' '.join(text.lower().strip().split())
 
-def get_coordinates_fallback(city, country):
-    """Mendapatkan koordinat dengan fallback ke database lokal"""
-    try:
-        city_normalized = normalize_input(city)
-        country_normalized = normalize_input(country)
-        
-        # Coba dulu dari database lokal
-        if city_normalized in CITY_COORDINATES:
-            lat, lon = CITY_COORDINATES[city_normalized]
-            return lat, lon, None
-        
-        # Jika tidak ada di database, coba API dengan approach yang lebih sederhana
-        query = f"{city_normalized}, {country_normalized}"
-        url = f"https://nominatim.openstreetmap.org/search?q={query}&format=json&limit=1"
-        
-        headers = {
-            'User-Agent': 'AplikasiArahKiblat/1.0 (https://example.com)'
-        }
-        
-        response = requests.get(url, headers=headers, timeout=10)
-        
-        if response.status_code == 200:
-            data = response.json()
-            if data:
-                result = data[0]
-                lat = float(result['lat'])
-                lon = float(result['lon'])
-                return lat, lon, None
-            else:
-                return None, None, f"Kota '{city}' tidak ditemukan. Coba gunakan nama kota yang lebih umum."
-        else:
-            return None, None, "Server sibuk. Silakan coba lagi nanti."
-            
-    except requests.exceptions.Timeout:
-        return None, None, "Timeout - Koneksi terlalu lama"
-    except requests.exceptions.RequestException:
-        # Fallback ke kota utama jika API error
-        major_cities = ['jakarta', 'surabaya', 'bandung', 'tokyo', 'london', 'singapore']
-        for major_city in major_cities:
-            if major_city in city_normalized:
-                lat, lon = CITY_COORDINATES[major_city]
-                return lat, lon, f"Menggunakan koordinat {major_city.title()} (fallback)"
-        
-        return None, None, "Tidak dapat terhubung ke server. Coba gunakan kota utama seperti Jakarta, Tokyo, London, dll."
-    except Exception as e:
-        return None, None, f"Error: {str(e)}"
+def correct_country_name(country_input):
+    """Koreksi otomatis nama negara berdasarkan mapping"""
+    normalized = normalize_input(country_input)
+    
+    for correct_name, variations in COUNTRY_MAPPING.items():
+        if normalized in variations:
+            return correct_name
+    
+    return normalized
+
+def validate_city_country(city, country):
+    """Validasi apakah kota dan negara cocok"""
+    city_normalized = normalize_input(city)
+    country_normalized = correct_country_name(country)
+    
+    if city_normalized in CITY_DATABASE:
+        correct_country = CITY_DATABASE[city_normalized]['country']
+        if correct_country != country_normalized:
+            return False, f"❌ Kota '{city.title()}' berada di **{correct_country.title()}**, bukan di {country.title()}!"
+        return True, None
+    
+    return False, f"❌ Kota '{city.title()}' tidak ditemukan dalam database. Gunakan salah satu dari 100 kota yang tersedia."
+
+def get_coordinates(city, country):
+    """Mendapatkan koordinat dari database atau API"""
+    city_normalized = normalize_input(city)
+    country_normalized = correct_country_name(country)
+    
+    # Validasi dulu
+    is_valid, error_msg = validate_city_country(city, country)
+    if not is_valid:
+        return None, None, error_msg
+    
+    # Ambil dari database
+    if city_normalized in CITY_DATABASE:
+        data = CITY_DATABASE[city_normalized]
+        return data['lat'], data['lon'], None
+    
+    return None, None, "Kota tidak ditemukan dalam database."
 
 def calculate_qibla_direction(lat, lon):
     """Menghitung arah kiblat dari koordinat yang diberikan"""
@@ -338,37 +465,192 @@ st.markdown("""
 
 col1, col2 = st.columns(2)
 with col1:
-    city_input = st.text_input("**Kota**", "Jakarta", placeholder="Contoh: Jakarta, Tokyo, London")
+    city_input = st.text_input("**Kota**", "", placeholder="Contoh: Tokyo, Jakarta, London, Madrid")
     st.caption("⚠️ Masukkan nama KOTA (bisa huruf besar/kecil)")
     
-    # Tampilkan contoh kota populer
-    with st.expander("📋 Contoh Kota yang Didukung"):
-        col_a, col_b, col_c = st.columns(3)
-        with col_a:
-            st.write("**Indonesia:**")
-            st.write("- Jakarta")
-            st.write("- Surabaya")
-            st.write("- Bandung")
-            st.write("- Medan")
-            st.write("- Makassar")
-        with col_b:
-            st.write("**Asia:**")
-            st.write("- Tokyo")
-            st.write("- Seoul")
-            st.write("- Bangkok")
-            st.write("- Singapore")
-            st.write("- Kuala Lumpur")
-        with col_c:
-            st.write("**Internasional:**")
-            st.write("- London")
-            st.write("- Paris")
-            st.write("- New York")
-            st.write("- Sydney")
-            st.write("- Dubai")
-        
 with col2:
-    country_input = st.text_input("**Negara**", "Indonesia", placeholder="Contoh: Indonesia, Jepang, Amerika Serikat")
-    st.caption("⚠️ Masukkan nama NEGARA (bisa huruf besar/kecil)")
+    country_input = st.text_input("**Negara**", "", placeholder="Contoh: Jepang, Indonesia, Inggris, Spanyol")
+    st.caption("⚠️ Masukkan NEGARA yang sesuai dengan kota")
+
+# Tampilkan daftar 100 kota yang tersedia
+with st.expander("📋 Lihat 100 Kota yang Tersedia"):
+    st.markdown("### 🌏 ASIA (35 kota)")
+    col_a1, col_a2, col_a3 = st.columns(3)
+    with col_a1:
+        st.write("**Indonesia:**")
+        st.write("- Jakarta")
+        st.write("- Surabaya")
+        st.write("- Bandung")
+        st.write("- Medan")
+        st.write("- Semarang")
+        st.write("- Makassar")
+        st.write("- Palembang")
+    with col_a2:
+        st.write("**Asia Tenggara:**")
+        st.write("- Kuala Lumpur (Malaysia)")
+        st.write("- Penang (Malaysia)")
+        st.write("- Johor Bahru (Malaysia)")
+        st.write("- Singapore (Singapura)")
+        st.write("- Bangkok (Thailand)")
+        st.write("- Phuket (Thailand)")
+        st.write("- Hanoi (Vietnam)")
+        st.write("- Manila (Filipina)")
+    with col_a3:
+        st.write("**Asia Timur:**")
+        st.write("- Tokyo (Jepang)")
+        st.write("- Osaka (Jepang)")
+        st.write("- Kyoto (Jepang)")
+        st.write("- Seoul (Korea Selatan)")
+        st.write("- Busan (Korea Selatan)")
+        st.write("- Beijing (China)")
+        st.write("- Shanghai (China)")
+        st.write("- Hong Kong")
+        st.write("- Taipei (Taiwan)")
+    
+    col_a4, col_a5 = st.columns(2)
+    with col_a4:
+        st.write("**Asia Selatan:**")
+        st.write("- Mumbai (India)")
+        st.write("- Delhi (India)")
+        st.write("- Bangalore (India)")
+        st.write("- Karachi (Pakistan)")
+        st.write("- Dhaka (Bangladesh)")
+        st.write("- Colombo (Sri Lanka)")
+        st.write("- Kathmandu (Nepal)")
+    with col_a5:
+        st.write("**Asia Barat:**")
+        st.write("- Tehran (Iran)")
+        st.write("- Baghdad (Irak)")
+    
+    st.markdown("---")
+    st.markdown("### 🕌 TIMUR TENGAH (15 kota)")
+    col_m1, col_m2, col_m3 = st.columns(3)
+    with col_m1:
+        st.write("**Arab Saudi:**")
+        st.write("- Riyadh")
+        st.write("- Jeddah")
+        st.write("- Makkah")
+        st.write("")
+        st.write("**UAE:**")
+        st.write("- Dubai")
+        st.write("- Abu Dhabi")
+    with col_m2:
+        st.write("**Negara Teluk:**")
+        st.write("- Doha (Qatar)")
+        st.write("- Kuwait City (Kuwait)")
+        st.write("- Muscat (Oman)")
+        st.write("- Manama (Bahrain)")
+        st.write("")
+        st.write("**Levant:**")
+        st.write("- Amman (Yordania)")
+        st.write("- Beirut (Lebanon)")
+    with col_m3:
+        st.write("**Lainnya:**")
+        st.write("- Damascus (Suriah)")
+        st.write("- Jerusalem (Israel)")
+        st.write("- Ankara (Turki)")
+        st.write("- Istanbul (Turki)")
+    
+    st.markdown("---")
+    st.markdown("### 🏰 EROPA (25 kota)")
+    col_e1, col_e2, col_e3 = st.columns(3)
+    with col_e1:
+        st.write("**Eropa Timur:**")
+        st.write("- Moscow (Rusia)")
+        st.write("- Saint Petersburg (Rusia)")
+        st.write("- Kyiv (Ukraina)")
+        st.write("- Warsaw (Polandia)")
+        st.write("")
+        st.write("**Jerman:**")
+        st.write("- Berlin")
+        st.write("- Munich")
+        st.write("- Hamburg")
+    with col_e2:
+        st.write("**Eropa Barat:**")
+        st.write("- Paris (Perancis)")
+        st.write("- Marseille (Perancis)")
+        st.write("- Lyon (Perancis)")
+        st.write("- London (Inggris)")
+        st.write("- Manchester (Inggris)")
+        st.write("- Dublin (Irlandia)")
+        st.write("- Amsterdam (Belanda)")
+        st.write("- Brussels (Belgia)")
+    with col_e3:
+        st.write("**Eropa Selatan:**")
+        st.write("- Rome (Italia)")
+        st.write("- Milan (Italia)")
+        st.write("- Naples (Italia)")
+        st.write("- Madrid (Spanyol)")
+        st.write("- Barcelona (Spanyol)")
+        st.write("- Valencia (Spanyol)")
+        st.write("- Lisbon (Portugal)")
+        st.write("")
+        st.write("**Lainnya:**")
+        st.write("- Zurich (Swiss)")
+        st.write("- Vienna (Austria)")
+        st.write("- Stockholm (Swedia)")
+    
+    st.markdown("---")
+    st.markdown("### 🗽 AMERIKA (15 kota)")
+    col_am1, col_am2, col_am3 = st.columns(3)
+    with col_am1:
+        st.write("**Amerika Utara:**")
+        st.write("- New York (USA)")
+        st.write("- Los Angeles (USA)")
+        st.write("- Chicago (USA)")
+        st.write("- Houston (USA)")
+        st.write("- Miami (USA)")
+    with col_am2:
+        st.write("**Kanada:**")
+        st.write("- Toronto")
+        st.write("- Vancouver")
+        st.write("- Montreal")
+        st.write("")
+        st.write("**Amerika Latin:**")
+        st.write("- Mexico City (Meksiko)")
+        st.write("- Bogota (Kolombia)")
+        st.write("- Lima (Peru)")
+    with col_am3:
+        st.write("**Amerika Selatan:**")
+        st.write("- Sao Paulo (Brazil)")
+        st.write("- Rio de Janeiro (Brazil)")
+        st.write("- Buenos Aires (Argentina)")
+        st.write("- Santiago (Chile)")
+    
+    st.markdown("---")
+    st.markdown("### 🦁 AFRIKA (10 kota)")
+    col_af1, col_af2 = st.columns(2)
+    with col_af1:
+        st.write("**Afrika Utara:**")
+        st.write("- Cairo (Mesir)")
+        st.write("- Casablanca (Maroko)")
+        st.write("- Algiers (Aljazair)")
+        st.write("- Tunis (Tunisia)")
+        st.write("")
+        st.write("**Afrika Barat:**")
+        st.write("- Lagos (Nigeria)")
+        st.write("- Accra (Ghana)")
+    with col_af2:
+        st.write("**Afrika Timur:**")
+        st.write("- Nairobi (Kenya)")
+        st.write("- Addis Ababa (Ethiopia)")
+        st.write("")
+        st.write("**Afrika Selatan:**")
+        st.write("- Johannesburg (Afrika Selatan)")
+        st.write("- Cape Town (Afrika Selatan)")
+    
+    st.markdown("---")
+    st.markdown("### 🦘 OSEANIA (5 kota)")
+    col_oc1, col_oc2 = st.columns(2)
+    with col_oc1:
+        st.write("**Australia:**")
+        st.write("- Sydney")
+        st.write("- Melbourne")
+        st.write("- Brisbane")
+    with col_oc2:
+        st.write("**Selandia Baru:**")
+        st.write("- Auckland")
+        st.write("- Wellington")
 
 calculate_button = st.button("🧭 Hitung Arah Kiblat", use_container_width=True)
 
@@ -376,28 +658,26 @@ if calculate_button:
     if not city_input or not country_input:
         st.warning("⚠️ Harap masukkan nama Kota dan Negara.")
     else:
-        with st.spinner("🔄 Mencari koordinat lokasi..."):
-            user_lat, user_lon, error_msg = get_coordinates_fallback(city_input, country_input)
+        with st.spinner("🔄 Memvalidasi dan mencari koordinat..."):
+            user_lat, user_lon, error_msg = get_coordinates(city_input, country_input)
         
-        if error_msg and user_lat is None:
-            st.error(f"❌ {error_msg}")
+        if error_msg:
+            st.error(error_msg)
             
-            # Berikan daftar kota yang didukung
-            st.info("""
-            **🏙️ Kota-kota yang didukung:**
-            - **Indonesia**: Jakarta, Surabaya, Bandung, Medan, Makassar, Semarang, Yogyakarta, Denpasar, Palembang, Batam
-            - **Asia**: Tokyo, Osaka, Kyoto, Seoul, Beijing, Shanghai, Bangkok, Kuala Lumpur, Singapore, Manila
-            - **Timur Tengah**: Dubai, Riyadh, Cairo, Istanbul, Jeddah
-            - **Eropa**: London, Paris, Berlin, Rome, Madrid, Moscow
-            - **Amerika**: New York, Los Angeles, Chicago, Toronto
-            - **Oseania**: Sydney, Melbourne
-            
-            **💡 Tips:** Gunakan nama kota dari daftar di atas untuk hasil terbaik.
-            """)
-        else:
-            if error_msg and user_lat is not None:
-                st.warning(f"⚠️ {error_msg}")
-            
+            # Berikan saran
+            city_normalized = normalize_input(city_input)
+            if city_normalized in CITY_DATABASE:
+                correct_country = CITY_DATABASE[city_normalized]['country']
+                st.info(f"💡 **Saran:** Kota '{city_input.title()}' berada di **{correct_country.title()}**. Silakan gunakan negara yang benar!")
+            else:
+                st.info("""
+                **💡 Tips:**
+                - Pastikan kota yang Anda masukkan ada dalam daftar 100 kota yang tersedia
+                - Klik "📋 Lihat 100 Kota yang Tersedia" untuk melihat daftar lengkap
+                - Pastikan negara sesuai dengan kotanya (contoh: Madrid harus dengan Spanyol)
+                """)
+        
+        elif user_lat is not None and user_lon is not None:
             # --- Result Section ---
             st.markdown("""
             <div class="result-section">
@@ -413,8 +693,8 @@ if calculate_button:
                 st.metric("🌐 Lintang", f"{user_lat:.4f}°")
                 st.metric("🌐 Bujur", f"{user_lon:.4f}°")
             with col_info3:
-                st.metric("🕋 Ka'bah", "Mekah")
-                st.metric("🇸🇦 Negara", "Arab Saudi")
+                st.metric("🕋 Ka'bah", "Makkah")
+                st.metric("📍 Koordinat", f"{KAABA_LAT:.4f}°, {KAABA_LON:.4f}°")
             
             # Hitung arah kiblat
             qibla = calculate_qibla_direction(user_lat, user_lon)
@@ -452,13 +732,16 @@ if calculate_button:
                     <li>Berdiri menghadap <strong>Utara</strong> menggunakan kompas</li>
                     <li>Putar tubuh Anda sebesar <strong>{qibla:.2f}°</strong> searah jarum jam</li>
                     <li>Anda sekarang menghadap ke arah <strong>{direction_name}</strong> menuju Ka'bah</li>
-                    <li>Gunakan patokan tetap untuk mempermudah penentuan arah</li>
+                    <li>Gunakan patokan tetap (bangunan/pohon) untuk mempermudah penentuan arah</li>
                 </ol>
                 <p style='color: #ffa500; margin: 1rem 0 0 0; font-weight: bold;'>
-                    🎯 Arah Kiblat Anda: <strong>{qibla:.2f}° dari Utara</strong> menuju <strong>{direction_name}</strong>
+                    🎯 Arah Kiblat dari {city_input.title()}: <strong>{qibla:.2f}°</strong> ke arah <strong>{direction_name}</strong>
                 </p>
             </div>
             """, unsafe_allow_html=True)
+            
+            # Informasi tambahan
+            st.success(f"✅ Berhasil menghitung arah kiblat untuk {city_input.title()}, {country_input.title()}!")
 
 # Informasi default
 else:
@@ -466,11 +749,64 @@ else:
     <div style='background: rgba(0, 170, 255, 0.1); padding: 1.5rem; border-radius: 10px; margin: 2rem 0;'>
         <h4 style='color: #00aaff; margin-bottom: 1rem;'>💡 Cara Menggunakan:</h4>
         <ul style='color: #ccc; margin: 0;'>
-            <li>Masukkan <strong>nama kota</strong> dan <strong>nama negara</strong> tempat Anda berada</li>
-            <li>Gunakan kota-kota utama untuk hasil terbaik</li>
-            <li>Bisa menggunakan <strong>huruf besar</strong> atau <strong>huruf kecil</strong></li>
-            <li>Klik tombol <strong>"Hitung Arah Kiblat"</strong> untuk melihat hasil</li>
+            <li>Masukkan <strong>nama kota</strong> dari 100 kota yang tersedia</li>
+            <li>Masukkan <strong>nama negara</strong> yang <strong>SESUAI</strong> dengan kota tersebut</li>
+            <li>Contoh: <strong>Madrid → Spanyol</strong> ✅ (bukan negara lain ❌)</li>
+            <li>Bisa menggunakan <strong>huruf besar/kecil</strong> dan ejaan <strong>Indonesia/Inggris</strong></li>
+            <li>Klik <strong>"📋 Lihat 100 Kota yang Tersedia"</strong> untuk melihat daftar lengkap</li>
+            <li>Sistem akan <strong>validasi otomatis</strong> kecocokan kota dan negara</li>
         </ul>
+        
+        <h4 style='color: #ffa500; margin: 1.5rem 0 1rem 0;'>✅ Contoh Input yang Benar:</h4>
+        <ul style='color: #ccc; margin: 0;'>
+            <li><strong>Kota:</strong> Madrid | <strong>Negara:</strong> Spanyol ✅</li>
+            <li><strong>Kota:</strong> Tokyo | <strong>Negara:</strong> Jepang ✅</li>
+            <li><strong>Kota:</strong> Jakarta | <strong>Negara:</strong> Indonesia ✅</li>
+            <li><strong>Kota:</strong> New York | <strong>Negara:</strong> Amerika Serikat ✅</li>
+        </ul>
+        
+        <h4 style='color: #ff6b6b; margin: 1.5rem 0 1rem 0;'>❌ Contoh Input yang Salah:</h4>
+        <ul style='color: #ccc; margin: 0;'>
+            <li><strong>Kota:</strong> Madrid | <strong>Negara:</strong> Indonesia ❌ (Tidak cocok!)</li>
+            <li><strong>Kota:</strong> Tokyo | <strong>Negara:</strong> China ❌ (Tidak cocok!)</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Statistik
+    st.markdown("""
+    <div style='background: rgba(255, 165, 0, 0.1); padding: 1.5rem; border-radius: 10px; margin: 2rem 0;'>
+        <h4 style='color: #ffa500; margin-bottom: 1rem;'>📊 Database Kota:</h4>
+        <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;'>
+            <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
+                <div style='font-size: 2rem; color: #00aaff;'>35</div>
+                <div style='color: #ccc;'>Kota Asia</div>
+            </div>
+            <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
+                <div style='font-size: 2rem; color: #00aaff;'>15</div>
+                <div style='color: #ccc;'>Kota Timur Tengah</div>
+            </div>
+            <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
+                <div style='font-size: 2rem; color: #00aaff;'>25</div>
+                <div style='color: #ccc;'>Kota Eropa</div>
+            </div>
+            <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
+                <div style='font-size: 2rem; color: #00aaff;'>15</div>
+                <div style='color: #ccc;'>Kota Amerika</div>
+            </div>
+            <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
+                <div style='font-size: 2rem; color: #00aaff;'>10</div>
+                <div style='color: #ccc;'>Kota Afrika</div>
+            </div>
+            <div style='text-align: center; padding: 1rem; background: rgba(0,170,255,0.1); border-radius: 8px;'>
+                <div style='font-size: 2rem; color: #00aaff;'>5</div>
+                <div style='color: #ccc;'>Kota Oseania</div>
+            </div>
+        </div>
+        <div style='text-align: center; margin-top: 1.5rem; padding: 1rem; background: rgba(255,215,0,0.1); border-radius: 8px;'>
+            <div style='font-size: 2.5rem; color: gold; font-weight: bold;'>105</div>
+            <div style='color: #ccc; font-size: 1.1rem;'>Total Kota dari Seluruh Benua</div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -478,8 +814,10 @@ else:
 st.markdown("---")
 st.markdown(
     "<div style='text-align: center; color: #666; font-size: 14px;'>"
-    "🕋 Arah Kiblat - Membantu Anda menemukan arah sholat yang tepat • "
-    "Koordinat Ka'bah: 21.4225°N, 39.8262°E"
+    "🕋 Arah Kiblat - Membantu Anda menemukan arah sholat yang tepat<br>"
+    "📍 Koordinat Ka'bah: 21.4225°N, 39.8262°E<br>"
+    "🌍 Mendukung 105 kota dari 6 benua dengan validasi otomatis kota-negara<br>"
+    "✅ Sistem validasi memastikan kota dan negara sesuai"
     "</div>",
     unsafe_allow_html=True
 )
