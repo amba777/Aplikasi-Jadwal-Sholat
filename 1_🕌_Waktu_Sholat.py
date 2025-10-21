@@ -26,7 +26,7 @@ hijri_months_id = {
 
 # --- Konfigurasi Halaman ---
 st.set_page_config(
-    page_title="Jadwal Sholat Kota Medan",
+    page_title="Jadwal Sholat",
     page_icon="🕌",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -263,3 +263,4 @@ display_footer()
 st.markdown('</div>', unsafe_allow_html=True)
 time_module.sleep(1)
 st.rerun()
+
