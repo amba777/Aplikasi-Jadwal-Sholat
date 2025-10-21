@@ -250,7 +250,7 @@ if data_sholat:
     st.markdown('<div class="feature-box">', unsafe_allow_html=True)
     col1, col2 = st.columns([3, 1])
     with col1:
-        st.markdown("""<h4 style="font-family: 'Poppins', sans-serif; color: #fafafa; margin-top: 0; margin-bottom: 15px;">Fitur Aplikasi</h4><ul class="feature-list"><li class="feature-item"><span class="feature-icon">✓</span> Jadwal sholat otomatis untuk Kota Medan</li><li class="feature-item"><span class="feature-icon">✓</span> Notifikasi azan tepat waktu</li><li class="feature-item"><span class="feature-icon">✓</span> Audio azan berbeda untuk Subuh</li><li class="feature-item"><span class="feature-icon">✓</span> Kalender Hijriyah & Masehi</li><li class="feature-item"><span class="feature-icon">✓</span> Auto-refresh</li></ul>""", unsafe_allow_html=True)
+        st.markdown("""<h4 style="font-family: 'Poppins', sans-serif; color: #fafafa; margin-top: 0; margin-bottom: 15px;">Fitur Aplikasi</h4><ul class="feature-list"><li class="feature-item"><span class="feature-icon">✓</span> Jadwal sholat</li><li class="feature-item"><span class="feature-icon">✓</span> Notifikasi azan tepat waktu</li><li class="feature-item"><span class="feature-icon">✓</span> Audio azan berbeda untuk Subuh</li><li class="feature-item"><span class="feature-icon">✓</span> Kalender Hijriyah & Masehi</li><li class="feature-item"><span class="feature-icon">✓</span> Auto-refresh</li></ul>""", unsafe_allow_html=True)
     with col2:
         st.markdown('<div class="refresh-button-wrapper">', unsafe_allow_html=True)
         if st.button("🔄 Refresh Data", use_container_width=True): st.rerun()
@@ -263,5 +263,6 @@ display_footer()
 st.markdown('</div>', unsafe_allow_html=True)
 time_module.sleep(1)
 st.rerun()
+
 
 
