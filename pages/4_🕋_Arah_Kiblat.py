@@ -161,7 +161,7 @@ CITY_DATABASE = {
     'berlin': {'country': 'jerman', 'lat': 52.5200, 'lon': 13.4050},
     'munich': {'country': 'jerman', 'lat': 48.1351, 'lon': 11.5820},
     'hamburg': {'country': 'jerman', 'lat': 53.5511, 'lon': 9.9937},
-    'paris': {'country': 'perancis', 'lat': 33.8886, 'lon': 35.4955},
+    'paris': {'country': 'perancis', 'lat': 48.8566, 'lon': 2.3522},
     'marseille': {'country': 'perancis', 'lat': 43.2965, 'lon': 5.3698},
     'lyon': {'country': 'perancis', 'lat': 45.7640, 'lon': 4.8357},
     'rome': {'country': 'italia', 'lat': 41.9028, 'lon': 12.4964},
@@ -998,3 +998,4 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
+
