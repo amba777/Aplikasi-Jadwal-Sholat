@@ -100,22 +100,43 @@ def get_coordinates(city, country):
     """Mendapatkan koordinat dari nama kota dan negara"""
     try:
         query = f'{city},{country}'
-        url = f"https://nominatim.openstreetmap.org/search?q={query}&format=json"
+        url = f"https://nominatim.openstreetmap.org/search?q={query}&format=json&addressdetails=1"
         headers = {'User-Agent': 'AplikasiArahKiblat/1.0'}
         
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
         
         data = response.json()
-        if data:
-            lat = float(data[0]['lat'])
-            lon = float(data[0]['lon'])
-            return lat, lon
+        if data and len(data) > 0:
+            result = data[0]
+            lat = float(result['lat'])
+            lon = float(result['lon'])
+            
+            # Validasi apakah hasil pencarian sesuai dengan kota dan negara
+            address = result.get('address', {})
+            display_name = result.get('display_name', '').lower()
+            
+            # Cek apakah negara sesuai
+            country_code = address.get('country', '').lower()
+            country_name = address.get('country', '').lower()
+            
+            if country.lower() not in display_name and country.lower() not in country_name:
+                return None, None, f"Negara '{country}' tidak ditemukan dalam hasil pencarian"
+            
+            # Cek apakah ini kota yang valid (bukan negara)
+            location_type = result.get('type', '')
+            if location_type == 'country':
+                return None, None, f"'{city}' terdeteksi sebagai negara, bukan kota. Harap masukkan nama kota yang valid"
+            
+            return lat, lon, None
         else:
-            return None, None
+            return None, None, "Lokasi tidak ditemukan"
+    except requests.exceptions.Timeout:
+        return None, None, "Timeout - Koneksi terlalu lama"
+    except requests.exceptions.RequestException as e:
+        return None, None, f"Error koneksi: {str(e)}"
     except Exception as e:
-        st.error(f"Gagal mendapatkan koordinat: {e}")
-        return None, None
+        return None, None, f"Error: {str(e)}"
 
 def calculate_qibla_direction(lat, lon):
     """Menghitung arah kiblat dari koordinat yang diberikan"""
@@ -280,9 +301,11 @@ st.markdown("""
 
 col1, col2 = st.columns(2)
 with col1:
-    city_input = st.text_input("**Kota**", "Medan", placeholder="Contoh: Jakarta")
+    city_input = st.text_input("**Kota**", "", placeholder="Contoh: Medan, Jakarta, Surabaya")
+    st.caption("⚠️ Masukkan nama KOTA, bukan negara")
 with col2:
-    country_input = st.text_input("**Negara**", "Indonesia", placeholder="Contoh: Indonesia")
+    country_input = st.text_input("**Negara**", "", placeholder="Contoh: Indonesia, Malaysia")
+    st.caption("⚠️ Masukkan nama NEGARA")
 
 calculate_button = st.button("🧭 Hitung Arah Kiblat", use_container_width=True)
 
@@ -291,9 +314,18 @@ if calculate_button:
         st.warning("⚠️ Harap masukkan nama Kota dan Negara.")
     else:
         with st.spinner("🔄 Mencari koordinat lokasi..."):
-            user_lat, user_lon = get_coordinates(city_input, country_input)
+            user_lat, user_lon, error_msg = get_coordinates(city_input, country_input)
         
-        if user_lat is not None and user_lon is not None:
+        if error_msg:
+            st.error(f"❌ {error_msg}")
+            st.info("""
+            **💡 Tips:**
+            - Pastikan **Kota** adalah nama kota yang valid (contoh: Jakarta, Medan, Surabaya)
+            - Pastikan **Negara** adalah nama negara yang benar (contoh: Indonesia, Malaysia, Singapore)
+            - Jangan menukar posisi kota dan negara
+            - Gunakan ejaan yang benar
+            """)
+        elif user_lat is not None and user_lon is not None:
             # --- Result Section ---
             st.markdown("""
             <div class="result-section">
