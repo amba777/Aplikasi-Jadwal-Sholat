@@ -154,6 +154,32 @@ def display_asmaul_husna_grid(data):
                 with cols[j]:
                     display_asma_card(data[i + j])
 
+# === FUNGSI BARU UNTUK FOOTER ===
+def display_footer():
+    """Menampilkan footer aplikasi dengan ayat Quran dan copyright."""
+    st.markdown("---")
+    
+    # Ayat Al-Quran
+    st.markdown("""
+    <div style='margin-top: 1.5rem; 
+                 padding: 1rem; 
+                 background: rgba(0, 0, 0, 0.3); 
+                 border-radius: 8px;'>
+        <p style='color: #888; font-size: 0.85rem; margin: 0; font-style: italic;'>
+            "Dan Allah memiliki Asma'ul-husna (nama-nama yang terbaik), maka bermohonlah kepada-Nya dengan menyebutnya Asma'ul-husna itu..."<br>
+            <span style='color: #00aaff;'>(QS. Al-A'raf: 180)</span>
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Copyright
+    st.markdown("""
+    <div style='margin-top: 1.5rem; text-align: center;'>
+        <p style='color: #666; font-size: 0.8rem; margin: 0.3rem 0;'>© 2025 Aplikasi Asmaul Husna</p>
+        <p style='color: #666; font-size: 0.8rem; margin: 0.3rem 0;'>Developed with ❤️ for Hamba Allah</p>
+    </div>
+    """, unsafe_allow_html=True)
+
 
 def main():
     """Fungsi utama untuk menjalankan aplikasi."""
@@ -168,7 +194,7 @@ def main():
     
     # Tampilkan search box dan tombol reset
     st.markdown("### 🔍 Cari nama Allah")
-    col_search, col_button = st.columns([4, 1], vertical_alignment="center")
+    col_search, col_button = st.columns([4, 1])
     
     with col_search:
         search_query = st.text_input(
@@ -176,7 +202,6 @@ def main():
             placeholder="Ketik nama latin atau arti...",
             key="search_input",
             label_visibility="collapsed"
-            
         )
     
     with col_button:
@@ -200,6 +225,9 @@ def main():
     
     # Tampilkan grid kartu
     display_asmaul_husna_grid(filtered_data)
+    
+    # === PANGGIL FUNGSI FOOTER DI SINI ===
+    display_footer()
 
 
 # Jalankan aplikasi
