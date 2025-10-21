@@ -1014,6 +1014,6 @@ st.markdown("""
 st.markdown("""
 <div style='margin-top: 1.5rem; text-align: center;'>
     <p style='color: #666; font-size: 0.8rem; margin: 0.3rem 0;'>© 2025 Aplikasi Arah Kiblat Digital</p>
-    <p style='color: #666; font-size: 0.8rem; margin: 0.3rem 0;'>Developed with ❤️ for Muslim Community Worldwide</p>
+    <p style='color: #666; font-size: 0.8rem; margin: 0.3rem 0;'>Developed with ❤️ for Hamba Allah</p>
 </div>
 """, unsafe_allow_html=True)
